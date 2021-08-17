@@ -396,7 +396,7 @@ void loop() {
         if (strlen((const char *)tem.c_str()) == 7)
           msg = String("000") + tem;
 
-        Serial.println(msg);
+        //Serial.println(msg);
         EEPROM.get(addmac, readmachine);
         if (query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0 ) {
           sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
@@ -442,6 +442,7 @@ void loop() {
           }
           display.clear();
           display.resetDisplay();
+          msg = ""; tem = "";
           customKey1 = NO_KEY;
         }
         // unconfrimed
@@ -717,7 +718,7 @@ void loop() {
             
           if (IDcard1 == IDcard) {
             confirmtime = 1;  RFstate = 1;
-            pauseset = 0; IDcard1 = "";
+            pauseset = 0; IDcard1 = ""; tem1 = "";
             setsh = 1;
             timerAttachInterrupt(timer, &onTimerWork, true);
             timerAlarmWrite(timer, 1000000, true);
@@ -733,7 +734,7 @@ void loop() {
             dw_font_goto(&myfont, 20, 36);
             dw_font_print(&myfont, "IDcard ไม่ตรงถูกต้อง");
             IDcard1 = "";
-            confirmtime = 0;
+            confirmtime = 0; tem1 = "";
             display.display();
             delay(3000);
             display.resetDisplay();
