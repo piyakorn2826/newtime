@@ -453,7 +453,12 @@ void loop() {
           settingmenu = 0; tem = ""; msg = "";
           display.clear();
           display.resetDisplay();
-          customKey1 = NO_KEY;
+          
+          while(!rdm6300.update())
+          {
+            customKey1 = NO_KEY;
+          }
+          
         }
       }
     }
