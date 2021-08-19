@@ -184,7 +184,7 @@ void setup() {
 
   if (WiFi.status() != WL_CONNECTED ) {
     display.clear();
-    dw_font_goto(&myfont, 20, 20);
+    dw_font_goto(&myfont, 15, 20);
     dw_font_print(&myfont, "โปรดทำการเชื่อมต่อ WiFi");
     display.display();
     ssid = ""; password = "";
@@ -213,7 +213,7 @@ void loop() {
         ssid = "";  password = ""; pass = "";
         display.resetDisplay();
         display.clear();
-        dw_font_goto(&myfont, 20, 30);
+        dw_font_goto(&myfont, 15, 30);
         dw_font_print(&myfont, "ทำการสแกน WiFi");
         display.display();
         con = 1;
@@ -222,7 +222,7 @@ void loop() {
         if (set == 0) {
           int n = WiFi.scanNetworks();
           if (n == 0) {
-            display.drawString(24, 0, "no networks found");
+            display.drawString(19, 0, "no networks found");
           }
           display.clear();
           display.drawString(0, 0, "scan WiFi");
@@ -333,12 +333,12 @@ void loop() {
         u = 31;
       }
       else if (u == 45) {
-        dw_font_goto(&myfont, 10, 62);
+        dw_font_goto(&myfont, 5, 62);
         dw_font_print(&myfont, "* ยืนยัน              ย้อนกลับ #");
         display.display();
       }
       else if (u >= 46) {
-        dw_font_goto(&myfont, 25, 23);
+        dw_font_goto(&myfont, 20, 23);
         dw_font_print(&myfont, "เกิดข้อผิดพลาด");
         display.display();
         delay(3000);
@@ -386,7 +386,7 @@ void loop() {
     if (RFstate == 0 && pauseset != 1 && confirmRF != 2) {
       EEPROM.get(addmac, readmachine);
       display.clear();
-      dw_font_goto(&myfont, 20, 36);
+      dw_font_goto(&myfont, 15, 36);
       dw_font_print(&myfont, "โปรดทำการสแกนบัตร");
       display.display();
 
@@ -394,36 +394,38 @@ void loop() {
         String tem = String(rdm6300.get_tag_id());
         if (strlen ((const char *)tem.c_str()) == 8)
           msg = String("00") + tem;
-        if (strlen((const char *)tem.c_str()) == 7)
+        else if (strlen((const char *)tem.c_str()) == 7)
           msg = String("000") + tem;
-
-        if (query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0 ) {
+        Serial.println(tem);
+        
+        if (msg != "" && query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0 ) {
           sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
           numrole = dst.role;
+
           confirmRF = 2;
           IDcard = msg;
           display.resetDisplay();
 
-          dw_font_goto(&myfont, 10, 10);
+          dw_font_goto(&myfont, 5, 10);
           sprintf( buff , "ID : %s" , dst.id_staff);
           dw_font_print(&myfont, buff);
           display.display();
 
-          dw_font_goto(&myfont, 10, 23);
-          sprintf( buff , "FISRT : %s" , dst.name_first);
+          dw_font_goto(&myfont, 5, 23);
+          sprintf( buff , "ชื่อ : %s" , dst.name_first);
           dw_font_print(&myfont, buff);
           display.display();
 
-          dw_font_goto(&myfont, 10, 36);
-          sprintf( buff , "LAST : %s" ,  dst.name_last);
+          dw_font_goto(&myfont, 5, 36);
+          sprintf( buff , "นามสกุล : %s" ,  dst.name_last);
           dw_font_print(&myfont, buff);
-          dw_font_goto(&myfont, 10, 62);
+          dw_font_goto(&myfont, 5, 62);
           dw_font_print(&myfont, "* ยืนยัน                 ยกเลิก #");
           dw_font_goto(&myfont, 20, 49);
           dw_font_print(&myfont, "ยืนยันการเข้าทำงาน");
           display.display();
           msg = ""; tem = "";
-        }
+        }  break; 
       }
     }
     if (confirmRF == 2) {
@@ -470,29 +472,29 @@ void loop() {
           //Serial.println(translate_hh_mm_cc(workCounter));
         }
 
-        dw_font_goto(&myfont, 5, 14);
+        dw_font_goto(&myfont, 0, 14);
         //EEPROM.get(addmac, readmachine);
         sprintf( buff1 , "รหัสเครื่อง: %s", readmachine);
         dw_font_print(&myfont, buff1);
 
-        dw_font_goto(&myfont, 83 , 14);
+        dw_font_goto(&myfont, 78 , 14);
         sprintf(buff3 , "%s", translate_hh_mm_cc(workCounter));
         dw_font_print(&myfont, buff3);
 
-        dw_font_goto(&myfont, 5, 28);
+        dw_font_goto(&myfont, 0, 28);
         sprintf( buff1 , "ชื่อ: %s %s", dst.name_first , dst.name_last);
         dw_font_print(&myfont, buff1);
 
-        dw_font_goto(&myfont, 5, 42);
+        dw_font_goto(&myfont, 0, 42);
         sprintf( buff1 , "สั่งทำ: %s", dst.qty_order);
         dw_font_print(&myfont, buff1);
 
-        dw_font_goto(&myfont, 70, 42);
+        dw_font_goto(&myfont, 65, 42);
         EEPROM.get(addeeqty, readqty);
         sprintf( buff1 , "สำเร็จ: %d", readqty);
         dw_font_print(&myfont, buff1);
 
-        dw_font_goto(&myfont, 105 , 28);
+        dw_font_goto(&myfont, 100 , 28);
         EEPROM.get(addeecount, readcount);
         sprintf(buff2 , "%d", readcount);
         dw_font_print(&myfont, buff2);
@@ -553,15 +555,14 @@ void loop() {
         // stop and pause time
         if (rdm6300.update()) {
           tem1 = String(rdm6300.get_tag_id());
-
           if (strlen ((const char *)tem1.c_str()) == 8)
             IDcard1 = String("00") + tem1;
-          if (strlen((const char *)tem1.c_str()) == 7)
+          else if (strlen((const char *)tem1.c_str()) == 7)
             IDcard1 = String("000") + tem1;
 
           if (IDcard1 == IDcard) {
             display.resetDisplay();
-            dw_font_goto(&myfont, 5, 56);
+            dw_font_goto(&myfont, 0, 56);
             dw_font_print(&myfont, "* พักเบรก    หยุดการทำงาน #");
             display.display();
             confirmtime = 1;
@@ -569,7 +570,7 @@ void loop() {
           }
           else {
             display.resetDisplay();
-            dw_font_goto(&myfont, 20, 36);
+            dw_font_goto(&myfont, 15, 36);
             dw_font_print(&myfont, "IDcard ไม่ตรงถูกต้อง");
             IDcard1 = ""; tem1 = "";
             confirmtime = 0;
@@ -630,30 +631,30 @@ void loop() {
         if ( interruptBreak )
         {
           if (setb == 1) {
-            dw_font_goto(&myfont, 5, 14);
+            dw_font_goto(&myfont, 0, 14);
             //EEPROM.get(addmac, readmachine);
             sprintf( buff1 , "รหัสเครื่อง: %s", readmachine);
             dw_font_print(&myfont, buff1);
 
-            dw_font_goto(&myfont, 5, 28);
+            dw_font_goto(&myfont, 0, 28);
             sprintf( buff1 , "ชื่อ: %s %s", dst.name_first , dst.name_last);
             dw_font_print(&myfont, buff1);
 
-            dw_font_goto(&myfont, 30, 42);
+            dw_font_goto(&myfont, 25, 42);
             dw_font_print(&myfont, "พักเบรกเข้าห้องน้ำ");
             display.display();
           }
           else if (setb == 2) {
-            dw_font_goto(&myfont, 5, 14);
+            dw_font_goto(&myfont, 0, 14);
             //EEPROM.get(addmac, readmachine);
             sprintf( buff1 , "รหัสเครื่อง: %s", readmachine);
             dw_font_print(&myfont, buff1);
 
-            dw_font_goto(&myfont, 5, 28);
+            dw_font_goto(&myfont, 0, 28);
             sprintf( buff1 , "ชื่อ: %s %s", dst.name_first , dst.name_last);
             dw_font_print(&myfont, buff1);
 
-            dw_font_goto(&myfont, 30, 42);
+            dw_font_goto(&myfont, 25, 42);
             dw_font_print(&myfont, "พักเบรกทานอาหาร");
             display.display();
           }
@@ -661,21 +662,21 @@ void loop() {
           interruptBreak = 0;
           portEXIT_CRITICAL_ISR(&timerMux);
           breakCounter++;
-          dw_font_goto(&myfont, 45 , 56);
+          dw_font_goto(&myfont, 40 , 56);
           sprintf(buff2 , "%s", translate_hh_mm_cc(breakCounter));
           dw_font_print(&myfont, buff2);
           display.display();
         }
 
         if (setsh == 1) {
-          dw_font_goto(&myfont, 10, 10);
+          dw_font_goto(&myfont, 0, 10);
           //EEPROM.get(addmac, readmachine);
           sprintf( buff1 , "รหัสเครื่อง : %s", readmachine);
           dw_font_print(&myfont, buff1);
-          dw_font_goto(&myfont, 10, 24);
+          dw_font_goto(&myfont, 0, 24);
           dw_font_print(&myfont, "กด A พักเบรกเข้าห้องน้ำ");
 
-          dw_font_goto(&myfont, 10 , 38);
+          dw_font_goto(&myfont, 0 , 38);
           dw_font_print(&myfont, "กด B พักเบรกทานอาหาร");
           display.display();
         }
@@ -731,7 +732,7 @@ void loop() {
           }
           else {
             display.resetDisplay();
-            dw_font_goto(&myfont, 20, 36);
+            dw_font_goto(&myfont, 15, 36);
             dw_font_print(&myfont, "IDcard ไม่ตรงถูกต้อง");
             IDcard1 = "";
             confirmtime = 0; tem1 = "";
@@ -755,13 +756,13 @@ void loop() {
         Serial.print("Work : ");
         Serial.println(translate_hh_mm_cc(workCounter));
       }
-      dw_font_goto(&myfont, 30, 10);
+      dw_font_goto(&myfont, 25, 10);
       dw_font_print(&myfont, "เลือกการตั้งค่า");
-      dw_font_goto(&myfont, 10, 24);
+      dw_font_goto(&myfont, 5, 24);
       dw_font_print(&myfont, "กด A ตั้งค่า รหัสเครื่อง");
-      dw_font_goto(&myfont, 10, 38);
+      dw_font_goto(&myfont, 5, 38);
       dw_font_print(&myfont, "กด B ใส่รหัสการทำงาน");
-      dw_font_goto(&myfont, 10, 62);
+      dw_font_goto(&myfont, 5, 62);
       dw_font_print(&myfont, "                   ย้อนกลับ #");
       display.display();
 
@@ -801,7 +802,7 @@ void loop() {
         Serial.println(translate_hh_mm_cc(workCounter));
       }
 
-      dw_font_goto(&myfont, 10, 10);
+      dw_font_goto(&myfont, 5, 10);
       dw_font_print(&myfont, "โปรดใส่เลขรหัสเครื่อง");
       display.display();
       if (u == 24) {
@@ -810,12 +811,12 @@ void loop() {
         u = 31;
       }
       else if (u == 45) {
-        dw_font_goto(&myfont, 10, 62);
+        dw_font_goto(&myfont, 5, 62);
         dw_font_print(&myfont, "* ยืนยัน              ย้อนกลับ #");
         display.display();
       }
       else if (u >= 46) {
-        dw_font_goto(&myfont, 25, 23);
+        dw_font_goto(&myfont, 20, 23);
         dw_font_print(&myfont, "เกิดข้อผิดพลาด");
         display.display();
         delay(3000);
@@ -861,17 +862,17 @@ void loop() {
         Serial.println(translate_hh_mm_cc(workCounter));
       }
 
-      dw_font_goto(&myfont, 10, 10);
+      dw_font_goto(&myfont, 5, 10);
       dw_font_print(&myfont, "โปรดใส่รหัสการทำงาน");
       display.display();
 
       if (u == 31) {
-        dw_font_goto(&myfont, 10, 62);
+        dw_font_goto(&myfont, 5, 62);
         dw_font_print(&myfont, "* ยืนยัน              ย้อนกลับ #");
         display.display();
       }
       else if (u >= 32) {
-        dw_font_goto(&myfont, 25, 23);
+        dw_font_goto(&myfont, 20, 23);
         dw_font_print(&myfont, "เกิดข้อผิดพลาด");
         display.display();
         delay(3000);
