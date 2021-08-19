@@ -384,6 +384,7 @@ void loop() {
   if (WiFi.status() == WL_CONNECTED )
   {
     if (RFstate == 0 && pauseset != 1 && confirmRF != 2) {
+      EEPROM.get(addmac, readmachine);
       display.clear();
       dw_font_goto(&myfont, 20, 36);
       dw_font_print(&myfont, "โปรดทำการสแกนบัตร");
@@ -396,8 +397,6 @@ void loop() {
         if (strlen((const char *)tem.c_str()) == 7)
           msg = String("000") + tem;
 
-        //Serial.println(msg);
-        EEPROM.get(addmac, readmachine);
         if (query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0 ) {
           sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
           numrole = dst.role;
@@ -423,7 +422,7 @@ void loop() {
           dw_font_goto(&myfont, 20, 49);
           dw_font_print(&myfont, "ยืนยันการเข้าทำงาน");
           display.display();
-          msg = "";
+          msg = ""; tem = "";
         }
       }
     }
