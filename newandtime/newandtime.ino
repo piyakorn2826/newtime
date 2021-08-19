@@ -423,6 +423,7 @@ void loop() {
           dw_font_goto(&myfont, 20, 49);
           dw_font_print(&myfont, "ยืนยันการเข้าทำงาน");
           display.display();
+          msg = "";
         }
       }
     }
@@ -553,7 +554,7 @@ void loop() {
         // stop and pause time
         if (rdm6300.update()) {
           tem1 = String(rdm6300.get_tag_id());
-          
+
           if (strlen ((const char *)tem1.c_str()) == 8)
             IDcard1 = String("00") + tem1;
           if (strlen((const char *)tem1.c_str()) == 7)
@@ -710,12 +711,12 @@ void loop() {
 
         if (rdm6300.update()) {
           tem1 = String(rdm6300.get_tag_id());
-          
+
           if (strlen ((const char *)tem1.c_str()) == 8)
             IDcard1 = String("00") + tem1;
           if (strlen((const char *)tem1.c_str()) == 7)
             IDcard1 = String("000") + tem1;
-            
+
           if (IDcard1 == IDcard) {
             confirmtime = 1;  RFstate = 1;
             pauseset = 0; IDcard1 = ""; tem1 = "";
@@ -774,7 +775,7 @@ void loop() {
           settingmenu = 0;
           customKey2 = NO_KEY;
         }
-        else if(customKey2 == 'b'){
+        else if (customKey2 == 'b') {
           display.resetDisplay();
           settingmachine = 2;
           settingmenu = 0;
@@ -800,7 +801,7 @@ void loop() {
         Serial.print("Work : ");
         Serial.println(translate_hh_mm_cc(workCounter));
       }
-      
+
       dw_font_goto(&myfont, 10, 10);
       dw_font_print(&myfont, "โปรดใส่เลขรหัสเครื่อง");
       display.display();
@@ -851,7 +852,7 @@ void loop() {
       }
     }
     //------------------------------- downtime code
-    else if(settingmachine == 2){
+    else if (settingmachine == 2) {
       if (interruptWork) {
         portENTER_CRITICAL_ISR(&timerMux);
         interruptWork = 0;
@@ -860,7 +861,7 @@ void loop() {
         Serial.print("Work : ");
         Serial.println(translate_hh_mm_cc(workCounter));
       }
-      
+
       dw_font_goto(&myfont, 10, 10);
       dw_font_print(&myfont, "โปรดใส่รหัสการทำงาน");
       display.display();
@@ -893,13 +894,13 @@ void loop() {
         else if (customKey == '*') {
           settingmenu = 1; customKey = NO_KEY;
           settingmachine = 0;
-          
-           u = 10;
+
+          u = 10;
           display.resetDisplay();
         }
         else if (customKey == '#') {
           u = 10; settingmenu = 1; customKey = NO_KEY;
-          settingmachine = 0;  code= "";
+          settingmachine = 0;  code = "";
           display.resetDisplay();
         }
       }
