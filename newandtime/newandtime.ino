@@ -73,7 +73,7 @@ int dataqty , datacount, addeeqty = 2, addeecount = 7; // address EEPROM set qty
 int addchackee = 1; int addmac = 14;                   // count = 7, chack = 1, machine = 14.
 int readcount, readqty , chack;                         // chack = ตรวจสถานะไฟตก
 int addssid = 100; int addpass = 30;
-int n; int pauseset = 0;
+int n; int pauseset = 0; int f = 0;
 
 String tem; String tem1; String code;
 //-------------------------------------------------------
@@ -153,8 +153,7 @@ void setup() {
   Serial.begin(115200);
   pinMode(LED, OUTPUT);
   pinMode(PIN_COUNTER, INPUT );
-  attachInterrupt(digitalPinToInterrupt(PIN_COUNTER), countUp, FALLING );
-
+  attachInterrupt(digitalPinToInterrupt(PIN_COUNTER), countUp, CHANGE );
   //--- timer
   timer = timerBegin(0, 80, true);
   timerDetachInterrupt(timer);
@@ -397,7 +396,7 @@ void loop() {
         else if (strlen((const char *)tem.c_str()) == 7)
           msg = String("000") + tem;
         Serial.println(tem);
-        
+
         if (msg != "" && query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0 ) {
           sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
           numrole = dst.role;
@@ -425,7 +424,7 @@ void loop() {
           dw_font_print(&myfont, "ยืนยันการเข้าทำงาน");
           display.display();
           msg = ""; tem = "";
-        }  break; 
+        }  break;
       }
     }
     if (confirmRF == 2) {
@@ -434,17 +433,15 @@ void loop() {
       if (customKey1 != NO_KEY) {
         //confrim
         if (customKey1 == '*') {
-          confirmRF = 1;
-          RFstate = 1;
+          confirmRF = 1; RFstate = 1;
           timerAttachInterrupt(timer, &onTimerWork, true);
           timerAlarmWrite(timer, 1000000, true);
           timerAlarmEnable(timer);
-          if (numrole == 2) {
+          if (numrole == 2)
             settingmenu = 1;
-          }
           display.clear();
           display.resetDisplay();
-          msg = ""; tem = "";
+          msg = ""; tem = ""; f = 1;
           customKey1 = NO_KEY;
         }
         // unconfrimed
@@ -453,12 +450,12 @@ void loop() {
           settingmenu = 0; tem = ""; msg = "";
           display.clear();
           display.resetDisplay();
-          
-          while(!rdm6300.update())
+
+          while (!rdm6300.update())
           {
             customKey1 = NO_KEY;
           }
-          
+
         }
       }
     }
@@ -545,12 +542,13 @@ void loop() {
           Serial.println( msg );
           digitalWrite(LED, led_state);
           led_state = !led_state;
+          display.clear();
         }
         if ( flag )
         {
           if (dataqty != qty) {
             dataqty = qty;
-            EEPROM.put(addeeqty, dataqty);
+            EEPROM.put(addeeqty, dataqty/2);
             EEPROM.commit();
             Serial.println(qty);
           }
@@ -558,7 +556,7 @@ void loop() {
         }
 
         // stop and pause time
-        if (rdm6300.update()) {
+        if (f == 1 && rdm6300.update()) {
           tem1 = String(rdm6300.get_tag_id());
           if (strlen ((const char *)tem1.c_str()) == 8)
             IDcard1 = String("00") + tem1;
@@ -606,7 +604,7 @@ void loop() {
               query_Quit_GetMethod((char*)IDcard.c_str() , dst.id_job, dst.operation, (char*)readmachine.c_str(), (char*)h.c_str(), (char*)strqty.c_str(), "0", "0");
               /* DB4 */
 
-              workCounter = 0;
+              workCounter = 0; f = 0;
               confirmRF = 0 , RFstate = 0, count = 0; readcount = 0;
               confirmtime = 0;
               EEPROM.put(addeecount, readcount);
@@ -615,7 +613,9 @@ void loop() {
               int v = 0;
               EEPROM.put(addchackee, v);
               EEPROM.commit();
+
               customKey1 = NO_KEY;
+
             }
 
             //pause
@@ -723,7 +723,7 @@ void loop() {
             IDcard1 = String("000") + tem1;
 
           if (IDcard1 == IDcard) {
-            confirmtime = 1;  RFstate = 1;
+            RFstate = 1;
             pauseset = 0; IDcard1 = ""; tem1 = "";
             setsh = 1;
             timerAttachInterrupt(timer, &onTimerWork, true);
@@ -740,7 +740,7 @@ void loop() {
             dw_font_goto(&myfont, 15, 36);
             dw_font_print(&myfont, "IDcard ไม่ตรงถูกต้อง");
             IDcard1 = "";
-            confirmtime = 0; tem1 = "";
+            tem1 = "";
             display.display();
             delay(3000);
             display.resetDisplay();
