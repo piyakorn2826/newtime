@@ -1208,7 +1208,10 @@ int query_Quit_GetMethod( char* id_rfid, char * id_job , char * operation , char
   }
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> ac723067f15a0e094acb9fac8f9de2226993e7a5
 int query_Downtime_GetMethod(  char * id_job , char * operation , char * id_machine , char * code_downtime )
 {
   String msg = " ";
@@ -1216,8 +1219,13 @@ int query_Downtime_GetMethod(  char * id_job , char * operation , char * id_mach
   sprintf( buff , "http://bunnam.com/projects/majorette_pp/update/downtime.php?id_job=%s&operation=%s&id_mc=%s&code_downtime=%s" , id_job, operation, id_machine, code_downtime );
   Serial.println(buff);
   msg = httpGETRequest(buff);
+<<<<<<< HEAD
 
   if ( msg != "null" )
+=======
+  
+   if ( msg != "null" )
+>>>>>>> ac723067f15a0e094acb9fac8f9de2226993e7a5
   {
 
     Serial.println( msg );
@@ -1294,6 +1302,10 @@ int query_Quit_DT_GetMethod( char * id_rfid, char * id_job , char * operation , 
   }
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> ac723067f15a0e094acb9fac8f9de2226993e7a5
 void draw_pixel(int16_t x, int16_t y)
 {
   display.setColor(WHITE);
