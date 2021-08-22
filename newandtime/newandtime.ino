@@ -49,7 +49,7 @@ char hexaKeys[ROWS][COLS] = {
   {'1', '4', '7', '*'},
   {'2', '5', '8', '0'},
   {'3', '6', '9', '#'},
-  {'a', 'b', 'C', 'E'}
+  {'a', 'b', 'C', 'D'}
 };
 byte rowPins[ROWS] = {3, 2, 1, 0}; //connect to the row pinouts of the keypad
 byte colPins[COLS] = {7, 6, 5, 4}; //connect to the column pinouts of the keypad
@@ -383,65 +383,58 @@ void loop() {
   if (WiFi.status() == WL_CONNECTED )
   {
     if (RFstate == 0 && pauseset != 1 && confirmRF != 2) {
-       EEPROM.get(addmac, readmachine);
+      EEPROM.get(addmac, readmachine);
       display.clear();
       dw_font_goto(&myfont, 15, 36);
       dw_font_print(&myfont, "โปรดทำการสแกนบัตร");
       display.display();
 
-//      msg = "";
-      if (rdm6300.update() && msg == "" ) 
+      //      msg = "";
+      if (rdm6300.update() && msg == "" )
       {
-        
         msg = String(rdm6300.get_tag_id());
-        
-        
         if (strlen ((const char *)msg.c_str()) == 8)
           msg = String("00") + msg;
         else if (strlen((const char *)msg.c_str()) == 7)
           msg = String("000") + msg;
         Serial.println(msg);
-
-
       }
 
-        if (msg != "" && query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0) 
-        {
-          sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
-          numrole = dst.role;
+      if (msg != "" && query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0)
+      {
+        sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
+        numrole = dst.role;
 
-          
-          IDcard = msg;
-          display.resetDisplay();
+        IDcard = msg;
+        display.resetDisplay();
 
-          dw_font_goto(&myfont, 5, 10);
-          sprintf( buff , "ID : %s" , dst.id_staff);
-          dw_font_print(&myfont, buff);
-          display.display();
+        dw_font_goto(&myfont, 5, 10);
+        sprintf( buff , "ID : %s" , dst.id_staff);
+        dw_font_print(&myfont, buff);
+        display.display();
 
-          dw_font_goto(&myfont, 5, 23);
-          sprintf( buff , "ชื่อ : %s" , dst.name_first);
-          dw_font_print(&myfont, buff);
-          display.display();
+        dw_font_goto(&myfont, 5, 23);
+        sprintf( buff , "ชื่อ : %s" , dst.name_first);
+        dw_font_print(&myfont, buff);
+        display.display();
 
-          dw_font_goto(&myfont, 5, 36);
-          sprintf( buff , "นามสกุล : %s" ,  dst.name_last);
-          dw_font_print(&myfont, buff);
-          dw_font_goto(&myfont, 5, 62);
-          dw_font_print(&myfont, "* ยืนยัน                 ยกเลิก #");
-          dw_font_goto(&myfont, 20, 49);
-          dw_font_print(&myfont, "ยืนยันการเข้าทำงาน");
-          display.display();
+        dw_font_goto(&myfont, 5, 36);
+        sprintf( buff , "นามสกุล : %s" ,  dst.name_last);
+        dw_font_print(&myfont, buff);
+        dw_font_goto(&myfont, 5, 62);
+        dw_font_print(&myfont, "* ยืนยัน                 ยกเลิก #");
+        dw_font_goto(&myfont, 20, 49);
+        dw_font_print(&myfont, "ยืนยันการเข้าทำงาน");
+        display.display();
 
-          noInterrupts();
-          msg = ""; 
-          tem = "";
-          confirmRF = 2;
-          interrupts();
-  
-        }  
-      
+        noInterrupts();
+        msg = "";
+        tem = "";
+        confirmRF = 2;
+        interrupts();
+      }
     }
+    
     if (confirmRF == 2) {
       // confrim Data RFID
       customKey1 = customKeypad.getKey();
@@ -457,7 +450,7 @@ void loop() {
           display.clear();
           display.resetDisplay();
           msg = ""; tem = ""; f = 1;
-          
+
           rdm6300.update();
           customKey1 = NO_KEY;
 
@@ -468,11 +461,9 @@ void loop() {
           settingmenu = 0; tem = ""; msg = "";
           display.clear();
           display.resetDisplay();
-          
+
           rdm6300.update();
           customKey1 = NO_KEY;
-          
-          
         }
       }
     }
@@ -624,7 +615,7 @@ void loop() {
 
               workCounter = 0; f = 0;
               confirmRF = 0 , RFstate = 0, count = 0; readcount = 0;
-              confirmtime = 0;
+              confirmtime = 0; msg = "";
               EEPROM.put(addeecount, readcount);
               display.resetDisplay();
               display.clear();
@@ -1233,7 +1224,7 @@ int query_Downtime_GetMethod(  char * id_job , char * operation , char * id_mach
   Serial.println(buff);
   msg = httpGETRequest(buff);
 
-   if ( msg != "null" )
+  if ( msg != "null" )
   {
     Serial.println( msg );
     Serial.println( msg.length() );
