@@ -442,7 +442,10 @@ void loop() {
           display.clear();
           display.resetDisplay();
           msg = ""; tem = ""; f = 1;
-          customKey1 = NO_KEY;
+          while (!rdm6300.update())
+          {
+            customKey1 = NO_KEY; break;
+          } 
         }
         // unconfrimed
         else if (customKey1 == '#') {
@@ -450,12 +453,10 @@ void loop() {
           settingmenu = 0; tem = ""; msg = "";
           display.clear();
           display.resetDisplay();
-
           while (!rdm6300.update())
           {
-            customKey1 = NO_KEY;
-          }
-
+            customKey1 = NO_KEY; break;
+          } 
         }
       }
     }
@@ -1215,9 +1216,7 @@ int query_Downtime_GetMethod(  char * id_job , char * operation , char * id_mach
   sprintf( buff , "http://bunnam.com/projects/majorette_pp/update/downtime.php?id_job=%s&operation=%s&id_mc=%s&code_downtime=%s" , id_job, operation, id_machine, code_downtime );
   Serial.println(buff);
   msg = httpGETRequest(buff);
-  if ( msg != "null" )
-=======
-  
+
    if ( msg != "null" )
   {
     Serial.println( msg );
