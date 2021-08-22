@@ -434,7 +434,7 @@ void loop() {
         interrupts();
       }
     }
-    
+
     if (confirmRF == 2) {
       // confrim Data RFID
       customKey1 = customKeypad.getKey();
@@ -557,8 +557,8 @@ void loop() {
           if (dataqty != qty) {
             dataqty = qty;
             // ขุดปัญหา reset เองตอน qty เข้า
-            //EEPROM.put(addeeqty, dataqty/2);
-            //EEPROM.commit();
+            EEPROM.put(addeeqty, dataqty/2);
+            EEPROM.commit();
             Serial.println(qty / 2);
           }
           flag = 0;
@@ -613,6 +613,16 @@ void loop() {
               query_Quit_GetMethod((char*)IDcard.c_str() , dst.id_job, dst.operation, (char*)readmachine.c_str(), (char*)h.c_str(), (char*)strqty.c_str(), "0", "0");
               /* DB4 */
 
+              display.clear();
+              dw_font_goto(&myfont, 30, 36);
+              dw_font_print(&myfont, "ออกการทำงาน");
+              dw_font_goto(&myfont, 40 , 56);
+              sprintf(buff2 , "%s", translate_hh_mm_cc(workCounter));
+              dw_font_print(&myfont, buff2);
+              display.display();
+
+              delay(2000);
+
               workCounter = 0; f = 0;
               confirmRF = 0 , RFstate = 0, count = 0; readcount = 0;
               confirmtime = 0; msg = "";
@@ -624,7 +634,6 @@ void loop() {
               EEPROM.commit();
 
               customKey1 = NO_KEY;
-
             }
 
             //pause
