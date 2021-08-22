@@ -49,7 +49,7 @@ char hexaKeys[ROWS][COLS] = {
   {'1', '4', '7', '*'},
   {'2', '5', '8', '0'},
   {'3', '6', '9', '#'},
-  {'a', 'b', 'c', 'd'}
+  {'a', 'b', 'C', 'E'}
 };
 byte rowPins[ROWS] = {3, 2, 1, 0}; //connect to the row pinouts of the keypad
 byte colPins[COLS] = {7, 6, 5, 4}; //connect to the column pinouts of the keypad
@@ -62,7 +62,7 @@ int a = 32, b = 0, staterf = 0, con = 0;
 int set = 0, c = 0, key = 0, num1;
 int RFstate = 0; int keystate = 0; int setsh ; int setb = 0;
 int settingmachine = 0; int u = 10; int numrole;
-String l; String pass;  String IDcard;  String IDcard1;
+String l; String pass;  String IDcard;  String IDcard1; String IDcard2;
 String machine; String customKeyset; String readmachine;
 int confirmRF = 0;  int confirmtime = 0; int settingmenu = 0;
 unsigned int prev_time, prev_time1;
@@ -548,9 +548,10 @@ void loop() {
         {
           if (dataqty != qty) {
             dataqty = qty;
-            EEPROM.put(addeeqty, dataqty/2);
-            EEPROM.commit();
-            Serial.println(qty);
+            // ขุดปัญหา reset เองตอน qty เข้า
+            //EEPROM.put(addeeqty, dataqty/2);
+            //EEPROM.commit();
+            Serial.println(qty / 2);
           }
           flag = 0;
         }
@@ -761,14 +762,14 @@ void loop() {
         Serial.print("Work : ");
         Serial.println(translate_hh_mm_cc(workCounter));
       }
-      dw_font_goto(&myfont, 25, 10);
+      dw_font_goto(&myfont, 30, 10);
       dw_font_print(&myfont, "เลือกการตั้งค่า");
       dw_font_goto(&myfont, 5, 24);
       dw_font_print(&myfont, "กด A ตั้งค่า รหัสเครื่อง");
       dw_font_goto(&myfont, 5, 38);
       dw_font_print(&myfont, "กด B ใส่รหัสการทำงาน");
       dw_font_goto(&myfont, 5, 62);
-      dw_font_print(&myfont, "                   ย้อนกลับ #");
+      dw_font_print(&myfont, "               หยุดการทำงาน #");
       display.display();
 
       customKey2 = customKeypad.getKey();
@@ -788,10 +789,12 @@ void loop() {
         }
         else if (customKey2 == '#') {
           display.resetDisplay();
-          RFstate = 0; settingmenu = 0; settingmachine = 0; confirmRF = 0;
-          timerDetachInterrupt(timer);
-          workCounter = 0;
-          customKey2 = NO_KEY;
+          settingmachine = 3;
+          settingmenu = 0;
+          while (!rdm6300.update())
+          {
+            customKey2 = NO_KEY; break;
+          }
         }
       }
     }
@@ -899,15 +902,64 @@ void loop() {
         else if (customKey == '*') {
           settingmenu = 1; customKey = NO_KEY;
           settingmachine = 0;
-
-          u = 10;
+          Serial.println(code);
+          query_Downtime_GetMethod(dst.id_job , dst.operation , (char*)readmachine.c_str() , (char*)code.c_str());
+          u = 10; code = "";
           display.resetDisplay();
         }
         else if (customKey == '#') {
+          display.resetDisplay();
           u = 10; settingmenu = 1; customKey = NO_KEY;
           settingmachine = 0;  code = "";
+        }
+      }
+    }
+    //---------------------------------------------------- quit code
+    else if (settingmachine == 3) {
+      dw_font_goto(&myfont, 15, 36);
+      dw_font_print(&myfont, "สแกนบัตรออกการทำงาน");
+      display.display();
+
+      if (rdm6300.update()) {
+        tem1 = String(rdm6300.get_tag_id());
+        if (strlen ((const char *)tem1.c_str()) == 8)
+          IDcard2 = String("00") + tem1;
+        else if (strlen((const char *)tem1.c_str()) == 7)
+          IDcard2 = String("000") + tem1;
+
+        if (IDcard2 == IDcard) {
+          query_Quit_DT_GetMethod( (char*)IDcard2.c_str(), dst.id_job , dst.operation , (char*)readmachine.c_str() );
+
+          display.clear();
+          dw_font_goto(&myfont, 30, 36);
+          dw_font_print(&myfont, "ออกการทำงาน");
+          dw_font_goto(&myfont, 40 , 56);
+          sprintf(buff2 , "%s", translate_hh_mm_cc(workCounter));
+          dw_font_print(&myfont, buff2);
+          display.display();
+
+          delay(2000);
+
+          RFstate = 0; settingmenu = 0; settingmachine = 0; confirmRF = 0;
+          timerDetachInterrupt(timer);
+          workCounter = 0;
+          IDcard2 = ""; tem1 = "";
+
+        }
+        else {
+          display.resetDisplay();
+          dw_font_goto(&myfont, 15, 36);
+          dw_font_print(&myfont, "IDcard ไม่ตรงถูกต้อง");
+          IDcard2 = ""; tem1 = "";
+          settingmachine = 3;
+          display.display();
+          delay(3000);
           display.resetDisplay();
         }
+      }
+      while (!rdm6300.update())
+      {
+        break;
       }
     }
   }
@@ -1121,6 +1173,92 @@ int query_Quit_GetMethod( char* id_rfid, char * id_job , char * operation , char
   String msg = " ";
   char buff[300];
   sprintf( buff , "http://bunnam.com/projects/majorette_pp/update/quit_v2.php?id_rfid=%s&id_job=%s&operation=%s&id_mc=%s&no_send=%s&no_pulse1=%s&no_pulse2=%s&no_pulse3=%s" , id_rfid, id_job, operation, id_machine, no_send, no_pulse1, no_pulse2, no_pulse3 );
+  Serial.println(buff);
+  msg = httpGETRequest(buff);
+
+  if ( msg != "null" )
+  {
+    Serial.println( msg );
+    Serial.println( msg.length() );
+    DynamicJsonDocument  doc( msg.length() + 256 ) ;
+    DeserializationError error = deserializeJson(doc, msg);
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      Serial.println("Error Quit!");
+      return -1;
+    }
+    if (doc["code"])
+    {
+      Serial.print("CODE : ");
+      Serial.println((const char *)(doc["code"]));
+      return -3;
+    }
+    if ( doc["time_work"] )
+    {
+      Serial.println((const char *)(doc["time_work"]));
+      return 0;
+    }
+  }
+  else
+  {
+    Serial.println("Error!");
+    return -2;
+  }
+}
+
+
+int query_Downtime_GetMethod(  char * id_job , char * operation , char * id_machine , char * code_downtime )
+{
+  String msg = " ";
+  char buff[300];
+  sprintf( buff , "http://bunnam.com/projects/majorette_pp/update/downtime.php?id_job=%s&operation=%s&id_mc=%s&code_downtime=%s" , id_job, operation, id_machine, code_downtime );
+  Serial.println(buff);
+  msg = httpGETRequest(buff);
+
+  if ( msg != "null" )
+  {
+
+    Serial.println( msg );
+    Serial.println( msg.length() );
+
+    if ( msg == "OK" )
+    {
+      return 0;
+    }
+    else
+    {
+      DynamicJsonDocument  doc( msg.length() + 256 ) ;
+      DeserializationError error = deserializeJson(doc, msg);
+      if (error)
+      {
+        Serial.print(F("deserializeJson() failed: "));
+        Serial.println(error.f_str());
+        Serial.println("Error Break!");
+        return -1;
+      }
+      if (doc["code"])
+      {
+        Serial.print("CODE : ");
+        Serial.println((const char *)(doc["code"]));
+        return -3;
+      }
+    }
+  }
+  else
+  {
+    Serial.println("Error!");
+    return -2;
+  }
+}
+
+
+int query_Quit_DT_GetMethod( char * id_rfid, char * id_job , char * operation , char * id_mc )
+{
+  String msg = " ";
+  char buff[300];
+  sprintf( buff , "http://bunnam.com/projects/majorette_pp/update/quit_dt.php?id_rfid=%s&id_job=%s&operation=%s&id_mc=%s" , id_rfid, id_job, operation, id_mc );
   Serial.println(buff);
   msg = httpGETRequest(buff);
 
