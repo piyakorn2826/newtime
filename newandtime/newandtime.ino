@@ -1156,6 +1156,92 @@ int query_Quit_GetMethod( char* id_rfid, char * id_job , char * operation , char
   }
 }
 
+int query_Downtime_GetMethod(  char * id_job , char * operation , char * id_machine , char * code_downtime )
+{
+  String msg = " ";
+  char buff[300];
+  sprintf( buff , "http://bunnam.com/projects/majorette_pp/update/downtime.php?id_job=%s&operation=%s&id_mc=%s&code_downtime=%s" , id_job, operation, id_machine, code_downtime );
+  Serial.println(buff);
+  msg = httpGETRequest(buff);
+  
+   if ( msg != "null" )
+  {
+
+    Serial.println( msg );
+    Serial.println( msg.length() );
+
+    if ( msg == "OK" )
+    {
+      return 0;
+    }
+    else
+    {
+      DynamicJsonDocument  doc( msg.length() + 256 ) ;
+      DeserializationError error = deserializeJson(doc, msg);
+      if (error)
+      {
+        Serial.print(F("deserializeJson() failed: "));
+        Serial.println(error.f_str());
+        Serial.println("Error Break!");
+        return -1;
+      }
+      if (doc["code"])
+      {
+        Serial.print("CODE : ");
+        Serial.println((const char *)(doc["code"]));
+        return -3;
+      }
+    }
+  }
+  else
+  {
+    Serial.println("Error!");
+    return -2;
+  }
+}
+
+
+int query_Quit_DT_GetMethod( char * id_rfid, char * id_job , char * operation , char * id_mc )
+{
+  String msg = " ";
+  char buff[300];
+  sprintf( buff , "http://bunnam.com/projects/majorette_pp/update/quit_dt.php?id_rfid=%s&id_job=%s&operation=%s&id_mc=%s" , id_rfid, id_job, operation, id_mc );
+  Serial.println(buff);
+  msg = httpGETRequest(buff);
+
+  if ( msg != "null" )
+  {
+    Serial.println( msg );
+    Serial.println( msg.length() );
+    DynamicJsonDocument  doc( msg.length() + 256 ) ;
+    DeserializationError error = deserializeJson(doc, msg);
+    if (error)
+    {
+      Serial.print(F("deserializeJson() failed: "));
+      Serial.println(error.f_str());
+      Serial.println("Error Quit!");
+      return -1;
+    }
+    if (doc["code"])
+    {
+      Serial.print("CODE : ");
+      Serial.println((const char *)(doc["code"]));
+      return -3;
+    }
+    if ( doc["time_work"] )
+    {
+      Serial.println((const char *)(doc["time_work"]));
+      return 0;
+    }
+  }
+  else
+  {
+    Serial.println("Error!");
+    return -2;
+  }
+}
+
+
 void draw_pixel(int16_t x, int16_t y)
 {
   display.setColor(WHITE);
