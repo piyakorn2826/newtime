@@ -383,25 +383,34 @@ void loop() {
   if (WiFi.status() == WL_CONNECTED )
   {
     if (RFstate == 0 && pauseset != 1 && confirmRF != 2) {
-      EEPROM.get(addmac, readmachine);
+       EEPROM.get(addmac, readmachine);
       display.clear();
       dw_font_goto(&myfont, 15, 36);
       dw_font_print(&myfont, "โปรดทำการสแกนบัตร");
       display.display();
 
-      while (rdm6300.update()) {
-        String tem = String(rdm6300.get_tag_id());
-        if (strlen ((const char *)tem.c_str()) == 8)
-          msg = String("00") + tem;
-        else if (strlen((const char *)tem.c_str()) == 7)
-          msg = String("000") + tem;
-        Serial.println(tem);
+//      msg = "";
+      if (rdm6300.update() && msg == "" ) 
+      {
+        
+        msg = String(rdm6300.get_tag_id());
+        
+        
+        if (strlen ((const char *)msg.c_str()) == 8)
+          msg = String("00") + msg;
+        else if (strlen((const char *)msg.c_str()) == 7)
+          msg = String("000") + msg;
+        Serial.println(msg);
 
-        if (msg != "" && query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0 ) {
+
+      }
+
+        if (msg != "" && query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0) 
+        {
           sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
           numrole = dst.role;
 
-          confirmRF = 2;
+          
           IDcard = msg;
           display.resetDisplay();
 
@@ -423,9 +432,15 @@ void loop() {
           dw_font_goto(&myfont, 20, 49);
           dw_font_print(&myfont, "ยืนยันการเข้าทำงาน");
           display.display();
-          msg = ""; tem = "";
-        }  break;
-      }
+
+          noInterrupts();
+          msg = ""; 
+          tem = "";
+          confirmRF = 2;
+          interrupts();
+  
+        }  
+      
     }
     if (confirmRF == 2) {
       // confrim Data RFID
@@ -442,10 +457,10 @@ void loop() {
           display.clear();
           display.resetDisplay();
           msg = ""; tem = ""; f = 1;
-          while (!rdm6300.update())
-          {
-            customKey1 = NO_KEY; break;
-          } 
+          
+          rdm6300.update();
+          customKey1 = NO_KEY;
+
         }
         // unconfrimed
         else if (customKey1 == '#') {
@@ -453,10 +468,11 @@ void loop() {
           settingmenu = 0; tem = ""; msg = "";
           display.clear();
           display.resetDisplay();
-          while (!rdm6300.update())
-          {
-            customKey1 = NO_KEY; break;
-          } 
+          
+          rdm6300.update();
+          customKey1 = NO_KEY;
+          
+          
         }
       }
     }
