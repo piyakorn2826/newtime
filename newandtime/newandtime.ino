@@ -1046,7 +1046,7 @@ int query_Touch_GetMethod( const char * id_mc , const char * id_rfid , employ_to
   String msg = " ";
   char buff[300];
 
-  sprintf( buff , "http://bunnam.com/projects/majorette_pp/update/touch.php?id_mc=%s&id_rfid=%s", id_mc, id_rfid );
+  sprintf( buff , "http://bunnam.com/projects/majorette_pp/update/touch_v3.php?id_mc=%s&id_rfid=%s", id_mc, id_rfid );
   Serial.println(id_mc);
   msg = httpGETRequest(buff);
 
