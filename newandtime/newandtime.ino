@@ -389,8 +389,7 @@ void loop() {
       dw_font_print(&myfont, "โปรดทำการสแกนบัตร");
       display.display();
 
-      //      msg = "";
-      if (rdm6300.update() && msg == "" )
+      if (rdm6300.update() )
       {
         msg = String(rdm6300.get_tag_id());
         if (strlen ((const char *)msg.c_str()) == 8)
@@ -398,9 +397,8 @@ void loop() {
         else if (strlen((const char *)msg.c_str()) == 7)
           msg = String("000") + msg;
         Serial.println(msg);
-      }
 
-      if (msg != "" && query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0)
+         if (msg != "" && query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0)
       {
         sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
         numrole = dst.role;
@@ -432,6 +430,7 @@ void loop() {
         tem = "";
         confirmRF = 2;
         interrupts();
+        }
       }
     }
 
