@@ -457,6 +457,21 @@ void loop() {
           display.resetDisplay();
           msg = ""; tem = ""; f = 1;
 
+          if (chack == 0) 
+          {
+              int v = 1;
+ 
+              EEPROM.get(addeeqty, dataqty);
+              
+              EEPROM.put(addchackee, v);
+              datacount = 1; 
+//              dataqty = 0;
+              EEPROM.put(addeecount , datacount);
+              EEPROM.put(addeeqty, dataqty);
+              EEPROM.commit();
+              display.resetDisplay();
+            }
+
           rdm6300.update();
           customKey1 = NO_KEY;
           while (!rdm6300.update()) {
@@ -537,16 +552,6 @@ void loop() {
               EEPROM.put(addeecount , datacount);
               EEPROM.commit();
             }
-            else if (chack == 0) {
-              int v = 1;
-              EEPROM.put(addchackee, v);
-              datacount = 1; 
-//              dataqty = 0;
-              EEPROM.put(addeecount , datacount);
-//              EEPROM.put(addeeqty, dataqty);
-              EEPROM.commit();
-              display.resetDisplay();
-            }
           }
           count++;
 
@@ -561,6 +566,7 @@ void loop() {
           led_state = !led_state;
           display.clear();
         }
+        
         if ( flag )
         {
           int chack = EEPROM.read(addchackee);
@@ -573,13 +579,6 @@ void loop() {
             EEPROM.put(addeeqty, dataqty);
             EEPROM.commit();
             Serial.println(dataqty);
-          }
-          else if (chack == 0) {
-            dataqty = qty;
-            // ขุดปัญหา reset เองตอน qty เข้า
-            EEPROM.put(addeeqty, qty / 2);
-            EEPROM.commit();
-            Serial.println(qty / 2);
           }
           flag = 0;
         }
