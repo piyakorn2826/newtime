@@ -112,6 +112,17 @@ volatile bool isWork = 0;
 volatile bool isBreak = 0;
 const int interruptPin = 21;
 
+volatile uint32_t count, qty;
+volatile int8_t flag = 0;
+char buff[300];
+char buff1[300];
+char buff2[300];
+char buff3[300];
+String msg, msg1;
+
+static employ_touch_TYPE dst;
+
+
 hw_timer_t * timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
@@ -125,6 +136,12 @@ void IRAM_ATTR onTimerBreak() {
   portENTER_CRITICAL_ISR(&timerMux);
   interruptBreak = 1;
   portEXIT_CRITICAL_ISR(&timerMux);
+}
+
+void IRAM_ATTR countUp ( void )
+{
+  qty++;
+  flag = 1;
 }
 
 String translate_hh_mm_cc( int sec )
@@ -190,16 +207,6 @@ void setup() {
     con = 0;
   }
 }
-
-volatile uint32_t count, qty;
-int8_t flag = 0;
-char buff[300];
-char buff1[300];
-char buff2[300];
-char buff3[300];
-String msg, msg1;
-
-static employ_touch_TYPE dst;
 
 void loop() {
   // show Wifi options
@@ -533,9 +540,10 @@ void loop() {
             else if (chack == 0) {
               int v = 1;
               EEPROM.put(addchackee, v);
-              datacount = 1; dataqty = 0;
+              datacount = 1; 
+//              dataqty = 0;
               EEPROM.put(addeecount , datacount);
-              EEPROM.put(addeeqty, dataqty);
+//              EEPROM.put(addeeqty, dataqty);
               EEPROM.commit();
               display.resetDisplay();
             }
@@ -555,15 +563,21 @@ void loop() {
         }
         if ( flag )
         {
+          int chack = EEPROM.read(addchackee);
+          Serial.print("chack :");
+          Serial.println(chack);
+          
           if (chack == 1) {
+            EEPROM.get(addeeqty, dataqty);
             dataqty++;
             EEPROM.put(addeeqty, dataqty);
             EEPROM.commit();
+            Serial.println(dataqty);
           }
           else if (chack == 0) {
             dataqty = qty;
             // ขุดปัญหา reset เองตอน qty เข้า
-            EEPROM.put(addeeqty, dataqty / 2);
+            EEPROM.put(addeeqty, qty / 2);
             EEPROM.commit();
             Serial.println(qty / 2);
           }
@@ -630,6 +644,7 @@ void loop() {
               delay(2000);
 
               workCounter = 0; f = 0;
+              qty = 0;
               confirmRF = 0 , RFstate = 0, count = 0; readcount = 0;
               confirmtime = 0; msg = "";
               EEPROM.put(addeecount, readcount);
@@ -988,11 +1003,6 @@ void loop() {
   }
 }
 
-void countUp ( void )
-{
-  qty++;
-  flag = 1;
-}
 
 String httpGETRequest(const char* serverName) {
   HTTPClient http;
