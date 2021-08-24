@@ -398,38 +398,38 @@ void loop() {
           msg = String("000") + msg;
         Serial.println(msg);
 
-         if (msg != "" && query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0)
-      {
-        sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
-        numrole = dst.role;
+        if (msg != "" && query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0)
+        {
+          sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
+          numrole = dst.role;
 
-        IDcard = msg;
-        display.resetDisplay();
+          IDcard = msg;
+          display.resetDisplay();
 
-        dw_font_goto(&myfont, 5, 10);
-        sprintf( buff , "ID : %s" , dst.id_staff);
-        dw_font_print(&myfont, buff);
-        display.display();
+          dw_font_goto(&myfont, 5, 10);
+          sprintf( buff , "ID : %s" , dst.id_staff);
+          dw_font_print(&myfont, buff);
+          display.display();
 
-        dw_font_goto(&myfont, 5, 23);
-        sprintf( buff , "ชื่อ : %s" , dst.name_first);
-        dw_font_print(&myfont, buff);
-        display.display();
+          dw_font_goto(&myfont, 5, 23);
+          sprintf( buff , "ชื่อ : %s" , dst.name_first);
+          dw_font_print(&myfont, buff);
+          display.display();
 
-        dw_font_goto(&myfont, 5, 36);
-        sprintf( buff , "นามสกุล : %s" ,  dst.name_last);
-        dw_font_print(&myfont, buff);
-        dw_font_goto(&myfont, 5, 62);
-        dw_font_print(&myfont, "* ยืนยัน                 ยกเลิก #");
-        dw_font_goto(&myfont, 20, 49);
-        dw_font_print(&myfont, "ยืนยันการเข้าทำงาน");
-        display.display();
+          dw_font_goto(&myfont, 5, 36);
+          sprintf( buff , "นามสกุล : %s" ,  dst.name_last);
+          dw_font_print(&myfont, buff);
+          dw_font_goto(&myfont, 5, 62);
+          dw_font_print(&myfont, "* ยืนยัน                 ยกเลิก #");
+          dw_font_goto(&myfont, 20, 49);
+          dw_font_print(&myfont, "ยืนยันการเข้าทำงาน");
+          display.display();
 
-        noInterrupts();
-        msg = "";
-        tem = "";
-        confirmRF = 2;
-        interrupts();
+          noInterrupts();
+          msg = "";
+          tem = "";
+          confirmRF = 2;
+          interrupts();
         }
       }
     }
@@ -452,7 +452,7 @@ void loop() {
 
           rdm6300.update();
           customKey1 = NO_KEY;
-          while (!rdm6300.update()){
+          while (!rdm6300.update()) {
             break;
           }
         }
@@ -555,10 +555,15 @@ void loop() {
         }
         if ( flag )
         {
-          if (dataqty != qty) {
+          if (chack == 1) {
+            dataqty++;
+            EEPROM.put(addeeqty, dataqty);
+            EEPROM.commit();
+          }
+          else if (chack == 0) {
             dataqty = qty;
             // ขุดปัญหา reset เองตอน qty เข้า
-            EEPROM.put(addeeqty, dataqty/2);
+            EEPROM.put(addeeqty, dataqty / 2);
             EEPROM.commit();
             Serial.println(qty / 2);
           }
