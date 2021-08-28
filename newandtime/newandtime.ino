@@ -8,6 +8,7 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include "string.h"
+#include "stdlib.h"
 #include "dw_font.h"
 #include <EEPROM.h>
 
@@ -20,6 +21,24 @@
 #define connecttime 50000
 #define connecttime1 500
 #define EEPROM_SIZE 512
+
+#define ERR_TOUCH_001     1
+#define ERR_COUNT_002     2
+#define ERR_BREAK_003     3
+#define ERR_COUNT_007     7
+#define ERR_TOUCH_008     8
+#define ERR_BREAK_009     9
+#define ERR_QUITE_010     10
+#define ERR_QUITE_011     11
+#define ERR_CONTINUE_012  12
+#define ERR_BREAK_013     13
+#define ERR_BREAK_014     14
+#define ERR_DOWNTIME_015  15
+#define ERR_TECH_016      16
+
+#define STATUS_OK         0
+#define ERR_GET_NULL     -2
+#define ERR_JSON_STACK   -1
 
 
 SH1106Wire display(0x3c, 21, 22);                     // ADDRESS, SDA, SCL
@@ -100,19 +119,7 @@ typedef enum {
   BR_TOILET ,
   BR_LUNCH
 } break_type ;
-//
-//typedef enum {
-//  ERR_TOUCH_001 = 1,
-//  ERR_COUNT_002 = 2,
-//  ERR_BREAK_003 = 3,
-//  ERR_COUNT_007 = 7,
-//  ERR_TOUCH_008 = 8,
-//  ERR_BREAK_009 = 9,
-//  ERR_CONTINUE_010 = 10,
-//  ERR_QUITE_011 = 11,
-//  ERR_QUITE_012 = 12,
-//  ERR_BREAK_V2_011 = 11,
-//} break_type ;
+
 
 break_type state_break ;
 
@@ -219,7 +226,7 @@ void setup() {
     ssid = ""; password = "";
     con = 0;
   }
-  Serial.println("v.1");
+  Serial.println("v.1.1");
 
 }
 
@@ -404,6 +411,10 @@ void loop() {
   // connect completed
   if (WiFi.status() == WL_CONNECTED )
   {
+    
+//    int a = query_Touch_GetMethod( "1234", "5678" , &dst);
+//    Serial.print("Debug : ");
+//    Serial.println(a);
 
     if (RFstate == 0 && pauseset != 1 && confirmRF != 2) {
       EEPROM.get(addmac, readmachine);
@@ -423,44 +434,69 @@ void loop() {
 
 
 
-        if (msg != "" && query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0)
+        if (msg != "")
         {
-          sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
-          numrole = dst.role;
+          switch(query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst)) // <-- Normal Case 
+//          switch(query_Touch_GetMethod( (const char *)"1234", (const char *)"1234" , &dst)) // <-- Test Case Error!!
+          {
+            case 0 : 
+                        sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
+                        numrole = dst.role;
 
-          IDcard = msg;
-          display.resetDisplay();
-
-          dw_font_goto(&myfont, 5, 10);
-          sprintf( buff , "ID : %s" , dst.id_staff);
-          dw_font_print(&myfont, buff);
-          display.display();
-
-          dw_font_goto(&myfont, 5, 23);
-          sprintf( buff , "ชื่อ : %s" , dst.name_first);
-          dw_font_print(&myfont, buff);
-          display.display();
-
-          dw_font_goto(&myfont, 5, 36);
-          sprintf( buff , "นามสกุล : %s" ,  dst.name_last);
-          dw_font_print(&myfont, buff);
-          dw_font_goto(&myfont, 5, 62);
-          dw_font_print(&myfont, "* ยืนยัน                 ยกเลิก #");
-          dw_font_goto(&myfont, 20, 49);
-          dw_font_print(&myfont, "ยืนยันการเข้าทำงาน");
-          display.display();
-
-          noInterrupts();
-          msg = "";
-          tem = "";
-          confirmRF = 2;
-          interrupts();
+                        IDcard = msg;
+                        display.resetDisplay();
+              
+                        dw_font_goto(&myfont, 5, 10);
+                        sprintf( buff , "ID : %s" , dst.id_staff);
+                        dw_font_print(&myfont, buff);
+                        display.display();
+              
+                        dw_font_goto(&myfont, 5, 23);
+                        sprintf( buff , "ชื่อ : %s" , dst.name_first);
+                        dw_font_print(&myfont, buff);
+                        display.display();
+              
+                        dw_font_goto(&myfont, 5, 36);
+                        sprintf( buff , "นามสกุล : %s" ,  dst.name_last);
+                        dw_font_print(&myfont, buff);
+                        dw_font_goto(&myfont, 5, 62);
+                        dw_font_print(&myfont, "* ยืนยัน                 ยกเลิก #");
+                        dw_font_goto(&myfont, 20, 49);
+                        dw_font_print(&myfont, "ยืนยันการเข้าทำงาน");
+                        display.display();
+              
+                        noInterrupts();
+                        msg = "";
+                        tem = "";
+                        confirmRF = 2;
+                        interrupts();
+              
+                        rdm6300.update();
+                        while (!rdm6300.update()) {
+                          break;
+                        }
+                   break ;
+                   
+            case ERR_TOUCH_001 : 
+                        Serial.println("ERR_TOUCH_001");
+                        display.clear();
+                        dw_font_goto(&myfont, 15, 36);
+                        dw_font_print(&myfont, "ERR_TOUCH_001");
+                        display.display(); 
+                        delay(1500);
+                        rdm6300.update();
+                        while (!rdm6300.update()) {
+                          break;
+                        }
+                    break ;
+          }
 
           rdm6300.update();
           while (!rdm6300.update()) {
-            break;
-          }
-        }
+              break;
+          } // switch
+        } // if
+        
       }
     }
 
@@ -1133,9 +1169,7 @@ int query_Touch_GetMethod( const char * id_mc , const char * id_rfid , employ_to
     }
     else if (doc["code"])
     {
-      Serial.print("CODE : ");
-      Serial.println((const char *)(doc["code"]));
-      return atoi(doc["code"]);
+      return ((doc["code"]).as<int>());
     }
     else
     {
@@ -1191,9 +1225,7 @@ int query_Continue_GetMethod( const char * id_mc , const char * id_rfid  )
     }
     if (doc["code"])
     {
-      Serial.print("CODE : ");
-      Serial.println((const char *)(doc["code"]));
-      return -3;
+      return ((doc["code"]).as<int>());
     }
     if ( doc["total_break"] )
     {
@@ -1239,9 +1271,7 @@ int query_Break_GetMethod( char * id_rfid, char * id_job , char * operation , ch
       }
       if (doc["code"])
       {
-        Serial.print("CODE : ");
-        Serial.println((const char *)(doc["code"]));
-        return -3;
+        return ((doc["code"]).as<int>());
       }
     }
   }
@@ -1275,9 +1305,7 @@ int query_Quit_GetMethod( char* id_rfid, char * id_job , char * operation , char
     }
     if (doc["code"])
     {
-      Serial.print("CODE : ");
-      Serial.println((const char *)(doc["code"]));
-      return -3;
+      return ((doc["code"]).as<int>());
     }
     if ( doc["time_work"] )
     {
@@ -1322,9 +1350,7 @@ int query_Downtime_GetMethod(  char * id_job , char * operation , char * id_mach
       }
       if (doc["code"])
       {
-        Serial.print("CODE : ");
-        Serial.println((const char *)(doc["code"]));
-        return -3;
+        return ((doc["code"]).as<int>());
       }
     }
   }
@@ -1358,9 +1384,7 @@ int query_Quit_DT_GetMethod( char * id_rfid, char * id_job , char * operation , 
     }
     if (doc["code"])
     {
-      Serial.print("CODE : ");
-      Serial.println((const char *)(doc["code"]));
-      return -3;
+      return ((doc["code"]).as<int>());
     }
     if ( doc["time_work"] )
     {
