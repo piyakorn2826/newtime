@@ -457,20 +457,20 @@ void loop() {
           display.resetDisplay();
           msg = ""; tem = ""; f = 1;
 
-          if (chack == 0) 
+          if (chack == 0)
           {
-              int v = 1;
- 
-              EEPROM.get(addeeqty, dataqty);
-              
-              EEPROM.put(addchackee, v);
-              datacount = 1; 
-//              dataqty = 0;
-              EEPROM.put(addeecount , datacount);
-              EEPROM.put(addeeqty, dataqty);
-              EEPROM.commit();
-              display.resetDisplay();
-            }
+            int v = 1;
+
+            EEPROM.get(addeeqty, dataqty);
+
+            EEPROM.put(addchackee, v);
+            datacount = 1;
+            //              dataqty = 0;
+            EEPROM.put(addeecount , datacount);
+            EEPROM.put(addeeqty, dataqty);
+            EEPROM.commit();
+            display.resetDisplay();
+          }
 
           rdm6300.update();
           customKey1 = NO_KEY;
@@ -566,13 +566,13 @@ void loop() {
           led_state = !led_state;
           display.clear();
         }
-        
+
         if ( flag )
         {
           int chack = EEPROM.read(addchackee);
           Serial.print("chack :");
           Serial.println(chack);
-          
+
           if (chack == 1) {
             EEPROM.get(addeeqty, dataqty);
             dataqty++;
@@ -598,6 +598,10 @@ void loop() {
             display.display();
             confirmtime = 1;
             IDcard1 = ""; tem1 = "";
+            rdm6300.update();
+            while (!rdm6300.update()) {
+              break;
+            }
           }
           else {
             display.resetDisplay();
@@ -608,6 +612,10 @@ void loop() {
             display.display();
             delay(3000);
             display.resetDisplay();
+            rdm6300.update();
+            while (!rdm6300.update()) {
+              break;
+            }
           }
         }
 
@@ -772,6 +780,11 @@ void loop() {
             breakCounter = 0;
             display.clear();
             display.resetDisplay();
+            //------------------------------------------------------------------------- เพิ่ม
+            rdm6300.update();
+            while (!rdm6300.update()) {
+              break;
+            }
           }
           else {
             display.resetDisplay();
@@ -782,6 +795,10 @@ void loop() {
             display.display();
             delay(3000);
             display.resetDisplay();
+            rdm6300.update();
+            while (!rdm6300.update()) {
+              break;
+            }
           }
         }
       }
@@ -981,6 +998,10 @@ void loop() {
           timerDetachInterrupt(timer);
           workCounter = 0;
           IDcard2 = ""; tem1 = "";
+          rdm6300.update();
+          while (!rdm6300.update()) {
+            break;
+          }
 
         }
         else {
@@ -992,12 +1013,12 @@ void loop() {
           display.display();
           delay(3000);
           display.resetDisplay();
+          rdm6300.update();
+          while (!rdm6300.update()) {
+            break;
+          }
         }
-      }
-      while (!rdm6300.update())
-      {
-        break;
-      }
+      }   
     }
   }
 }
