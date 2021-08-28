@@ -100,6 +100,19 @@ typedef enum {
   BR_TOILET ,
   BR_LUNCH
 } break_type ;
+//
+//typedef enum {
+//  ERR_TOUCH_001 = 1,
+//  ERR_COUNT_002 = 2,
+//  ERR_BREAK_003 = 3,
+//  ERR_COUNT_007 = 7,
+//  ERR_TOUCH_008 = 8,
+//  ERR_BREAK_009 = 9,
+//  ERR_CONTINUE_010 = 10,
+//  ERR_QUITE_011 = 11,
+//  ERR_QUITE_012 = 12,
+//  ERR_BREAK_V2_011 = 11,
+//} break_type ;
 
 break_type state_break ;
 
@@ -206,6 +219,8 @@ void setup() {
     ssid = ""; password = "";
     con = 0;
   }
+  Serial.println("v.1");
+
 }
 
 void loop() {
@@ -389,6 +404,7 @@ void loop() {
   // connect completed
   if (WiFi.status() == WL_CONNECTED )
   {
+
     if (RFstate == 0 && pauseset != 1 && confirmRF != 2) {
       EEPROM.get(addmac, readmachine);
       display.clear();
@@ -404,6 +420,8 @@ void loop() {
         else if (strlen((const char *)msg.c_str()) == 7)
           msg = String("000") + msg;
         Serial.println(msg);
+
+
 
         if (msg != "" && query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst) == 0)
         {
@@ -437,6 +455,11 @@ void loop() {
           tem = "";
           confirmRF = 2;
           interrupts();
+
+          rdm6300.update();
+          while (!rdm6300.update()) {
+            break;
+          }
         }
       }
     }
@@ -455,7 +478,7 @@ void loop() {
             settingmenu = 1;
           display.clear();
           display.resetDisplay();
-          msg = ""; tem = ""; f = 1;
+          msg = ""; tem = "";
 
           if (chack == 0)
           {
@@ -486,6 +509,9 @@ void loop() {
           display.resetDisplay();
 
           rdm6300.update();
+          while (!rdm6300.update()) {
+            break;
+          }
           customKey1 = NO_KEY;
         }
       }
@@ -584,7 +610,7 @@ void loop() {
         }
 
         // stop and pause time
-        if (f == 1 && rdm6300.update()) {
+        if (rdm6300.update()) {
           tem1 = String(rdm6300.get_tag_id());
           if (strlen ((const char *)tem1.c_str()) == 8)
             IDcard1 = String("00") + tem1;
@@ -592,12 +618,12 @@ void loop() {
             IDcard1 = String("000") + tem1;
 
           if (IDcard1 == IDcard) {
-            display.resetDisplay();
+            /*display.resetDisplay();
             dw_font_goto(&myfont, 0, 56);
             dw_font_print(&myfont, "* พักเบรก    หยุดการทำงาน #");
-            display.display();
+            display.display();*/
             confirmtime = 1;
-            IDcard1 = ""; tem1 = "";
+            IDcard1 = ""; tem1 = ""; f= 1;
             rdm6300.update();
             while (!rdm6300.update()) {
               break;
@@ -617,6 +643,11 @@ void loop() {
               break;
             }
           }
+        }
+        if (f == 1) {
+          dw_font_goto(&myfont, 0, 56);
+          dw_font_print(&myfont, "* พักเบรก    หยุดการทำงาน #");
+          display.display();
         }
 
         // confirm time stop and pause
@@ -650,10 +681,10 @@ void loop() {
 
               delay(2000);
 
-              workCounter = 0; f = 0;
+              workCounter = 0;
               qty = 0;
               confirmRF = 0 , RFstate = 0, count = 0; readcount = 0;
-              confirmtime = 0; msg = "";
+              confirmtime = 0; msg = ""; f = 0;
               EEPROM.put(addeecount, readcount);
               display.resetDisplay();
               display.clear();
@@ -670,7 +701,7 @@ void loop() {
               confirmtime = 0;
               RFstate = 0;
               pauseset = 1;
-              setsh = 1;
+              setsh = 1; f = 0;
               display.clear();
               display.resetDisplay();
             }
@@ -790,15 +821,15 @@ void loop() {
             display.resetDisplay();
             dw_font_goto(&myfont, 15, 36);
             dw_font_print(&myfont, "IDcard ไม่ตรงถูกต้อง");
-            IDcard1 = "";
-            tem1 = "";
+            IDcard1 = "";   tem1 = "";
             display.display();
-            delay(3000);
-            display.resetDisplay();
             rdm6300.update();
             while (!rdm6300.update()) {
               break;
             }
+            delay(3000);
+            display.resetDisplay();
+
           }
         }
       }
@@ -1018,7 +1049,7 @@ void loop() {
             break;
           }
         }
-      }   
+      }
     }
   }
 }
@@ -1104,7 +1135,7 @@ int query_Touch_GetMethod( const char * id_mc , const char * id_rfid , employ_to
     {
       Serial.print("CODE : ");
       Serial.println((const char *)(doc["code"]));
-      return -3;
+      return atoi(doc["code"]);
     }
     else
     {
