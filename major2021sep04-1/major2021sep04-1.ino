@@ -265,7 +265,7 @@ void setup() {
     ssid = ""; password = "";
     con = 0;
   }
-  Serial.println("v.1.1");
+  Serial.println("v.1.2");
 }
 void loop() {
   // show Wifi options
