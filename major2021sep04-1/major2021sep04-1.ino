@@ -674,10 +674,10 @@ delay(2000);
           display.resetDisplay();
 
           rdm6300.update();
+          customKey1 = NO_KEY;
           while (!rdm6300.update()) {
             break;
           }
-          customKey1 = NO_KEY;
         }
       }
     }
@@ -779,10 +779,7 @@ delay(2000);
             IDcard1 = String("000") + tem1;
 
           if (IDcard1 == IDcard) {
-            /*display.resetDisplay();
-            dw_font_goto(&myfont, 0, 56);
-            dw_font_print(&myfont, "* พักเบรก    หยุดการทำงาน #");
-            display.display();*/
+            
             confirmtime = 1;
             IDcard1 = ""; tem1 = ""; f= 1;
             rdm6300.update();
@@ -794,7 +791,7 @@ delay(2000);
             display.resetDisplay();
             dw_font_goto(&myfont, 15, LINE3);
             dw_font_print(&myfont, "ID card ไม่ตรง");
-            IDcard1 = ""; tem1 = "";
+            IDcard1 = ""; tem1 = ""; f = 0;
             confirmtime = 0;
             display.display();
             delay(3000);
@@ -984,7 +981,7 @@ delay(2000);
             display.resetDisplay();
             dw_font_goto(&myfont, 15, LINE3);
             dw_font_print(&myfont, "ID card ไม่ตรง");
-            IDcard1 = "";   tem1 = "";
+            IDcard1 = "";   tem1 = ""; f = 0;
             display.display();
             rdm6300.update();
             while (!rdm6300.update()) {
