@@ -47,11 +47,11 @@
 #define LINE4       53
 #define LINE5       68
 /*
-#define LINE1       10
-#define LINE2       25
-#define LINE3       40
-#define LINE4       55
-#define LINE5       70
+  #define LINE1       10
+  #define LINE2       25
+  #define LINE3       40
+  #define LINE4       55
+  #define LINE5       70
 */
 #define TAB0        0
 #define TAB5        5
@@ -60,10 +60,11 @@
 #define TAB20       20
 #define TAB40       40
 
-      unsigned int time_out = 0x05FF;
-      bool flag_count_down = 0;
-      short counter_ = 0;
-      
+unsigned int time_out = 0x05FF;
+unsigned int time_out1 = 0x0FFF;
+bool flag_count_down = 0;
+short counter_ = 0;
+
 SH1106Wire display(0x3c, 21, 22);                     // ADDRESS, SDA, SCL
 extern dw_font_info_t font_th_sarabun_new_regular14;  // font TH
 dw_font_t myfont;
@@ -165,7 +166,7 @@ String msg, msg1;
 
 static employ_touch_TYPE dst;
 
-String str= "";
+String str = "";
 
 hw_timer_t * timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
@@ -253,7 +254,7 @@ void setup() {
     dw_font_goto(&myfont, TAB0, LINE1);
     dw_font_print(&myfont, "Majorette (Thailand) Co.,LTD");
     dw_font_goto(&myfont, TAB0, LINE2);
-    dw_font_print(&myfont, "-----------------------------------------");   
+    dw_font_print(&myfont, "-----------------------------------------");
     dw_font_goto(&myfont, TAB0, LINE3);
     dw_font_print(&myfont, "กำลังเชื่อมต่อ WiFi");
     ssid = readssid.c_str();
@@ -265,7 +266,7 @@ void setup() {
     ssid = ""; password = "";
     con = 0;
   }
-  Serial.println("v.1.2");
+  Serial.println("v.1.3");
 }
 void loop() {
   // show Wifi options
@@ -315,7 +316,7 @@ void loop() {
           display.clear();
           display.drawString(0, LINE1, "SSID:");
           display.drawString(30, LINE1, ssid);
-          
+
           display.drawString(0, LINE2, "Pass: ");
           dw_font_goto(&myfont, 5, LINE4);
           dw_font_print(&myfont, "* ยืนยัน              ย้อนกลับ #");
@@ -352,14 +353,14 @@ void loop() {
             display.drawString(24, LINE3, "Connecting WiFi.");
             dw_font_goto(&myfont, 40, LINE4);
             sprintf( buff , "SSID: %s" , ssid);
-            dw_font_print(&myfont, buff);          
+            dw_font_print(&myfont, buff);
             //display.drawString(24, 55, "Just the moment.");
             display.display();
             WiFi.begin(ssid, password);
             EEPROM.put(addssid, setssid);
             EEPROM.put(addpass, pass);
             EEPROM.commit();
-delay(2000);
+            delay(2000);
             // connect wait completed
             while (WiFi.status() != WL_CONNECTED) {
               if (millis() - prev_time > connecttime) {
@@ -456,10 +457,10 @@ delay(2000);
   // connect completed
   if (WiFi.status() == WL_CONNECTED )
   {
-    
-//    int a = query_Touch_GetMethod( "1234", "5678" , &dst);
-//    Serial.print("Debug : ");
-//    Serial.println(a);
+
+    //    int a = query_Touch_GetMethod( "1234", "5678" , &dst);
+    //    Serial.print("Debug : ");
+    //    Serial.println(a);
 
     if (RFstate == 0 && pauseset != 1 && confirmRF != 2) {
       EEPROM.get(addmac, readmachine);
@@ -470,70 +471,70 @@ delay(2000);
       dw_font_goto(&myfont, 25, LINE2);
       sprintf( buff1 , "mc/no. %s", readmachine);
       dw_font_print(&myfont, buff1);
-        
+
       dw_font_goto(&myfont, 15, LINE3);
       dw_font_print(&myfont, "โปรดทำการสแกนบัตร");
       display.display();
-//------------
+      //------------
       customKey1 = customKeypad.getKey();
-      if(customKey1 != NO_KEY) 
+      if (customKey1 != NO_KEY)
       {
-            Serial.print("Count : ");
-             Serial.println(counter_);
-           if(customKey1 == 'a' && !flag_count_down) 
-           {
-             
-             flag_count_down = 1;
-             counter_++;
-           }
-           if(customKey1 == 'C' && counter_ == 1)
-           {
-            Serial.println("C");
-             counter_++;
-           }
-           if(customKey1 == 'b' && counter_ == 2)
-           {
-//             counter_++;
-            Serial.println("A + C + B !!");
-            Serial.println("Success !");
-            WiFi.disconnect();
-            
-            EEPROM.put(addssid, 0);
-            EEPROM.put(addpass, 0);
-            EEPROM.commit();
-            con = 0;
-            
-              time_out = 0x05FF;
-              flag_count_down = 0;
-              counter_ = 0;
+        Serial.print("Count : ");
+        Serial.println(counter_);
+        if (customKey1 == 'a' && !flag_count_down)
+        {
 
-              display.clear();
-              dw_font_goto(&myfont, 15, 36);
-              dw_font_print(&myfont, "โปรดเลือก A เพื่อเลือก WIFI");
-              display.display();
-              
-              EEPROM.put(addeecount, 0);
-              
-           }
+          flag_count_down = 1;
+          counter_++;
+        }
+        if (customKey1 == 'C' && counter_ == 1)
+        {
+          Serial.println("C");
+          counter_++;
+        }
+        if (customKey1 == 'b' && counter_ == 2)
+        {
+          //             counter_++;
+          Serial.println("A + C + B !!");
+          Serial.println("Success !");
+          WiFi.disconnect();
+
+          EEPROM.put(addssid, 0);
+          EEPROM.put(addpass, 0);
+          EEPROM.commit();
+          con = 0;
+          //time out
+          time_out = 0x05FF;
+          flag_count_down = 0;
+          counter_ = 0;
+
+          display.clear();
+          dw_font_goto(&myfont, 15, 36);
+          dw_font_print(&myfont, "โปรดเลือก A เพื่อเลือก WIFI");
+          display.display();
+
+          EEPROM.put(addeecount, 0);
+
+        }
       }
-      else 
+      else
       {
-         if( flag_count_down ) 
-         {
-           if(time_out < 100) 
-           {
-              Serial.println("Time Out !");
-              time_out = 0x05FF;
-              flag_count_down = 0;
-              counter_ = 0;
-           }
-           time_out--;
-         }
+        if ( flag_count_down )
+        {
+          if (time_out < 100)
+          {
+            Serial.println("Time Out !");
+            time_out = 0x05FF;
+            flag_count_down = 0;
+            counter_ = 0;
+          }
+          time_out--;
+        }
 
- 
+
       }
 
-//-----------
+      //-----------
       if (rdm6300.update() )
       {
         msg = String(rdm6300.get_tag_id());
@@ -545,87 +546,88 @@ delay(2000);
 
         if (msg != "")
         {
-          switch(query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst)) // <-- Normal Case 
-//          switch(query_Touch_GetMethod( (const char *)"1234", (const char *)"1234" , &dst)) // <-- Test Case Error!!
+          switch (query_Touch_GetMethod( (const char *)readmachine.c_str(), (const char *)msg.c_str() , &dst)) // <-- Normal Case
+            //          switch(query_Touch_GetMethod( (const char *)"1234", (const char *)"1234" , &dst)) // <-- Test Case Error!!
           {
             case 0 :    attachInterrupt(digitalPinToInterrupt(PIN_COUNTER), countUp, CHANGE );
-                        sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
-                        numrole = dst.role;
+              sprintf( buff , "ID : %s TIMESTAMP : %s VALUE : %s" , dst.id_staff , dst.name_first , dst.name_last );
+              numrole = dst.role;
 
-                        IDcard = msg;
-                        display.resetDisplay();
+              IDcard = msg;
+              display.resetDisplay();
 
-                        dw_font_goto(&myfont, 0, LINE1);
-                        sprintf( buff1 , "mc/no. %s", readmachine);
-                        dw_font_print(&myfont, buff1);
-                        display.display();
-                        
-                        dw_font_goto(&myfont, 0, LINE2);
-                        sprintf( buff , "ID : %s" , dst.id_staff);
-                        dw_font_print(&myfont, buff);
-                        //display.display();
+              dw_font_goto(&myfont, 0, LINE1);
+              sprintf( buff1 , "mc/no. %s", readmachine);
+              dw_font_print(&myfont, buff1);
+              display.display();
 
-                      dw_font_goto(&myfont, 60, LINE2);
-                        //sprintf( buff , "Role : %d" , dst.role);  // --------------------???
-                        Serial.print("Role = ");
-                        if(dst.role==1){
-                          Serial.println("Operator");
-                          sprintf( buff , "%s" , "[Operator]");
-                        }
-                        else {
-                          Serial.println("Technician");
-                          sprintf( buff , "%s" , "[Technician]");
-                        }
-                        dw_font_print(&myfont, buff);
-                        
-                        dw_font_goto(&myfont, 0, LINE3);
-                        sprintf( buff , "ชื่อ : %s" , dst.name_first);
-                        dw_font_print(&myfont, buff);
+              dw_font_goto(&myfont, 0, LINE2);
+              sprintf( buff , "ID : %s" , dst.id_staff);
+              dw_font_print(&myfont, buff);
+              //display.display();
 
-                        //Serial.println(dst.name_last);
-                        Serial.println(dst.name_last[0]);
-                        //sprintf( buff , " %c." ,  dst.name_last[0]);
-                        sprintf( buff , " %s" ,  dst.name_last);
-                        dw_font_print(&myfont, buff);
-                        display.display();
-                        //sprintf( buff , "นามสกุล : %s" ,  dst.name_last);
-                        
-                        dw_font_goto(&myfont, 5, LINE4); 
-                        dw_font_print(&myfont, "* ยืนยัน                 ยกเลิก #");
-                        display.display();
-              
-                        noInterrupts();
-                        msg = "";
-                        tem = "";
-                        confirmRF = 2;
-                        interrupts();
-              
-                        rdm6300.update();
-                        while (!rdm6300.update()) {
-                          break;
-                        }
-                   break ;
-                   
-            case ERR_TOUCH_001 : 
-                        Serial.println("ERR_TOUCH_001");
-                        display.clear();
-                        dw_font_goto(&myfont, 15, LINE3);
-                        dw_font_print(&myfont, "ERR_TOUCH_001");
-                        display.display(); 
-                        delay(1500);
-                        rdm6300.update();
-                        while (!rdm6300.update()) {
-                          break;
-                        }
-                    break ;
+              dw_font_goto(&myfont, 60, LINE2);
+              //sprintf( buff , "Role : %d" , dst.role);  // --------------------???
+              Serial.print("Role = ");
+              if (dst.role == 1) {
+                Serial.println("Operator");
+                sprintf( buff , "%s" , "[Operator]");
+              }
+              else {
+                Serial.println("Technician");
+                sprintf( buff , "%s" , "[Technician]");
+              }
+              dw_font_print(&myfont, buff);
+
+              dw_font_goto(&myfont, 0, LINE3);
+              sprintf( buff , "ชื่อ : %s" , dst.name_first);
+              dw_font_print(&myfont, buff);
+
+              //Serial.println(dst.name_last);
+              Serial.println(dst.name_last[0]);
+              //sprintf( buff , " %c." ,  dst.name_last[0]);
+              sprintf( buff , " %s" ,  dst.name_last);
+              dw_font_print(&myfont, buff);
+              display.display();
+              //sprintf( buff , "นามสกุล : %s" ,  dst.name_last);
+
+              dw_font_goto(&myfont, 5, LINE4);
+              dw_font_print(&myfont, "* ยืนยัน                 ยกเลิก #");
+              display.display();
+
+              noInterrupts();
+              msg = "";
+              tem = "";
+              confirmRF = 2;
+              interrupts();
+
+              rdm6300.update();
+              while (!rdm6300.update()) {
+                break;
+              }
+              break ;
+
+            case ERR_TOUCH_001 :
+              Serial.println("ERR_TOUCH_001");
+              display.clear();
+              dw_font_goto(&myfont, 15, LINE3);
+              dw_font_print(&myfont, "ERR_TOUCH_001");
+              display.display();
+              delay(1500);
+              rdm6300.update();
+              while (!rdm6300.update()) {
+                break;
+              }
+              break ;
           }
-
+          noInterrupts();
           rdm6300.update();
           while (!rdm6300.update()) {
-              break;
+            break;
           } // switch
+          interrupts();
         } // if
-        
+
       }
     }
 
@@ -663,6 +665,7 @@ delay(2000);
           rdm6300.update();
           customKey1 = NO_KEY;
           while (!rdm6300.update()) {
+            rdm6300.update();
             break;
           }
         }
@@ -676,6 +679,7 @@ delay(2000);
           rdm6300.update();
           customKey1 = NO_KEY;
           while (!rdm6300.update()) {
+            rdm6300.update();
             break;
           }
         }
@@ -713,7 +717,7 @@ delay(2000);
         EEPROM.get(addeeqty, readqty);
         sprintf( buff1 , "Qty: %d / %s", readqty, dst.qty_order);
         dw_font_print(&myfont, buff1);
-        
+
         dw_font_goto(&myfont, 100 , LINE3);
         EEPROM.get(addeecount, readcount);
         sprintf(buff2 , "%d", readcount);
@@ -779,9 +783,9 @@ delay(2000);
             IDcard1 = String("000") + tem1;
 
           if (IDcard1 == IDcard) {
-            
+
             confirmtime = 1;
-            IDcard1 = ""; tem1 = ""; f= 1;
+            IDcard1 = ""; tem1 = ""; f = 1;
             rdm6300.update();
             while (!rdm6300.update()) {
               break;
@@ -790,24 +794,50 @@ delay(2000);
           else {
             display.resetDisplay();
             dw_font_goto(&myfont, 15, LINE3);
-            dw_font_print(&myfont, "ID card ไม่ตรง");
+            dw_font_print(&myfont, "ID card ไม่ตรง 1");
             IDcard1 = ""; tem1 = ""; f = 0;
             confirmtime = 0;
             display.display();
             delay(3000);
             display.resetDisplay();
+          }
+          rdm6300.update();
+          while (!rdm6300.update()) {
             rdm6300.update();
-            while (!rdm6300.update()) {
-              break;
-            }
+            break;
           }
         }
-        if (f == 1) {
+
+        if (f == 1 && !rdm6300.update()) {
           dw_font_goto(&myfont, 0, LINE4);
           dw_font_print(&myfont, "* พักเบรก    หยุดการทำงาน #");
           display.display();
-        }
 
+          // ------------------------------------------------timeout
+          //flag_count_down = 1;
+          //counter_++;
+        }
+        // ------------------------------------------------timeout
+        /*if (time_out1 == 0x0FFF) {
+          display.resetDisplay();
+          f = 0; IDcard1 = ""; tem1 = ""; f = 0;
+          confirmtime = 0;
+
+          //flag_count_down = 0;
+          //counter_ = 0;
+        }
+        if ( flag_count_down )
+        {
+          if (time_out1 < 100)
+          {
+            Serial.println("Time Out !");
+            time_out1 = 0x0FFF;
+            flag_count_down = 0;
+            counter_ = 0;
+          }
+          time_out1--;
+        }*/
+        //-----------------------------------------------------
         // confirm time stop and pause
         if (confirmtime == 1) {
           customKey1 = customKeypad.getKey();
@@ -954,6 +984,7 @@ delay(2000);
         if (rdm6300.update()) {
           tem1 = String(rdm6300.get_tag_id());
 
+
           if (strlen ((const char *)tem1.c_str()) == 8)
             IDcard1 = String("00") + tem1;
           if (strlen((const char *)tem1.c_str()) == 7)
@@ -972,17 +1003,24 @@ delay(2000);
             display.clear();
             display.resetDisplay();
             //------------------------------------------------------------------------- เพิ่ม
+            dw_font_goto(&myfont, 15, LINE3);
+            dw_font_print(&myfont, "หยุดพักเบรค");
+            display.display();
+            delay(2000);
             rdm6300.update();
             while (!rdm6300.update()) {
+              rdm6300.update();
               break;
             }
+
           }
           else {
             display.resetDisplay();
             dw_font_goto(&myfont, 15, LINE3);
-            dw_font_print(&myfont, "ID card ไม่ตรง");
+            dw_font_print(&myfont, "ID card ไม่ตรง 2");
             IDcard1 = "";   tem1 = ""; f = 0;
             display.display();
+            noInterrupts();
             rdm6300.update();
             while (!rdm6300.update()) {
               break;
@@ -991,7 +1029,12 @@ delay(2000);
             display.resetDisplay();
 
           }
+          rdm6300.update();
+          while (!rdm6300.update()) {
+            break;
+          }
         }
+        interrupts();
       }
     }
 
@@ -1198,7 +1241,7 @@ delay(2000);
         else {
           display.resetDisplay();
           dw_font_goto(&myfont, 15, LINE3);
-          dw_font_print(&myfont, "ID card ไม่ตรง");
+          dw_font_print(&myfont, "ID card ไม่ตรง 3");
           IDcard2 = ""; tem1 = "";
           settingmachine = 3;
           display.display();
