@@ -503,7 +503,7 @@ void loop() {
           EEPROM.put(addpass, 0);
           EEPROM.put(addeecount, 0);
           EEPROM.commit();
-          
+
           con = 0;
           //time out
           time_out = 0x05FF;
@@ -515,7 +515,7 @@ void loop() {
           dw_font_print(&myfont, "โปรดเลือก A เพื่อเลือก WIFI");
           display.display();
 
-         
+
 
         }
       }
@@ -757,7 +757,7 @@ void loop() {
           Serial.println( msg );
           digitalWrite(LED, led_state);
           led_state = !led_state;
-//          display.clear();
+          //          display.clear();
         }
 
         if ( flag )
@@ -787,13 +787,13 @@ void loop() {
           if (IDcard1 == IDcard) {
 
             confirmtime = 1;
-            IDcard1 = ""; tem1 = ""; 
+            IDcard1 = ""; tem1 = "";
             flag_count_down = 1;
             time_out = 0x05FF;
             dw_font_goto(&myfont, 0, LINE4);
             dw_font_print(&myfont, "* พักเบรก    หยุดการทำงาน #");
             display.display();
-            
+
             rdm6300.update();
             while (!rdm6300.update()) {
               break;
@@ -816,17 +816,17 @@ void loop() {
           }
         }
 
-        
-        if( flag_count_down ) {
-//          Serial.println(confirmtime);
 
-            if(time_out < 100){
-                flag_count_down = 0;
-                confirmtime = 0;
-                display.clear();
-              }
-            time_out--;
+        if ( flag_count_down ) {
+          //          Serial.println(confirmtime);
+
+          if (time_out < 100) {
+            flag_count_down = 0;
+            confirmtime = 0;
+            display.clear();
           }
+          time_out--;
+        }
 
         // ------------------------------------------------timeout
         /*if (time_out1 == 0x0FFF) {
@@ -836,9 +836,9 @@ void loop() {
 
           //flag_count_down = 0;
           //counter_ = 0;
-        }
-        if ( flag_count_down )
-        {
+          }
+          if ( flag_count_down )
+          {
           if (time_out1 < 100)
           {
             Serial.println("Time Out !");
@@ -847,7 +847,7 @@ void loop() {
             counter_ = 0;
           }
           time_out1--;
-        }*/
+          }*/
         //-----------------------------------------------------
         // confirm time stop and pause
         if (confirmtime == 1) {
@@ -901,18 +901,18 @@ void loop() {
             //pause
             else if (customKey1 == '*') {
               customKey1 = NO_KEY;
-              
+
               noInterrupts();
               confirmtime = 0;
               RFstate = 0;
               pauseset = 1;
               setsh = 1;
-              interrupts(); 
-              
+              interrupts();
+
               f = 0;
 
               flag_count_down = flag_count_down ? 0 : 1;
-              
+
               display.clear();
               display.resetDisplay();
             }
@@ -1012,16 +1012,16 @@ void loop() {
             IDcard1 = String("000") + tem1;
 
           if (IDcard1 == IDcard) {
-            
+
             noInterrupts();
             RFstate = 1;
             setsh = 1;
             pauseset = 0;
             interrupts();
-            
-            IDcard1 = ""; 
+
+            IDcard1 = "";
             tem1 = "";
-            
+
             timerAttachInterrupt(timer, &onTimerWork, true);
             timerAlarmWrite(timer, 1000000, true);
             timerAlarmEnable(timer);
@@ -1343,7 +1343,10 @@ int query_Touch_GetMethod( const char * id_mc , const char * id_rfid , employ_to
   String msg = " ";
   char buff[300];
 
-  sprintf( buff , "http://bunnam.com/projects/majorette_pp/update/touch_v3.php?id_mc=%s&id_rfid=%s", id_mc, id_rfid );
+  // 6 sep 2021
+  //sprintf( buff , "http://192.168.40.1/SB_Admin_Pro/update/touch_v3.php?id_mc=%s&id_rfid=%s", id_mc, id_rfid );
+  sprintf( buff , "http://192.168.40.1/SB_Admin_Pro/update/touch.php?id_mc=%s&id_rfid=%s", id_mc, id_rfid );
+
   Serial.println(id_mc);
   msg = httpGETRequest(buff);
 
