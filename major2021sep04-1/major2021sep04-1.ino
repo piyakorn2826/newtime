@@ -266,7 +266,7 @@ void setup() {
     ssid = ""; password = "";
     con = 0;
   }
-  Serial.println("v.1.3");
+  Serial.println("v.1.4");
 }
 void loop() {
   // show Wifi options
@@ -501,7 +501,9 @@ void loop() {
 
           EEPROM.put(addssid, 0);
           EEPROM.put(addpass, 0);
+          EEPROM.put(addeecount, 0);
           EEPROM.commit();
+          
           con = 0;
           //time out
           time_out = 0x05FF;
@@ -513,7 +515,7 @@ void loop() {
           dw_font_print(&myfont, "โปรดเลือก A เพื่อเลือก WIFI");
           display.display();
 
-          EEPROM.put(addeecount, 0);
+         
 
         }
       }
@@ -755,7 +757,7 @@ void loop() {
           Serial.println( msg );
           digitalWrite(LED, led_state);
           led_state = !led_state;
-          display.clear();
+//          display.clear();
         }
 
         if ( flag )
@@ -785,7 +787,13 @@ void loop() {
           if (IDcard1 == IDcard) {
 
             confirmtime = 1;
-            IDcard1 = ""; tem1 = ""; f = 1;
+            IDcard1 = ""; tem1 = ""; 
+            flag_count_down = 1;
+            time_out = 0x05FF;
+            dw_font_goto(&myfont, 0, LINE4);
+            dw_font_print(&myfont, "* พักเบรก    หยุดการทำงาน #");
+            display.display();
+            
             rdm6300.update();
             while (!rdm6300.update()) {
               break;
@@ -808,15 +816,18 @@ void loop() {
           }
         }
 
-        if (f == 1 && !rdm6300.update()) {
-          dw_font_goto(&myfont, 0, LINE4);
-          dw_font_print(&myfont, "* พักเบรก    หยุดการทำงาน #");
-          display.display();
+        
+        if( flag_count_down ) {
+//          Serial.println(confirmtime);
 
-          // ------------------------------------------------timeout
-          //flag_count_down = 1;
-          //counter_++;
-        }
+            if(time_out < 100){
+                flag_count_down = 0;
+                confirmtime = 0;
+                display.clear();
+              }
+            time_out--;
+          }
+
         // ------------------------------------------------timeout
         /*if (time_out1 == 0x0FFF) {
           display.resetDisplay();
@@ -881,6 +892,8 @@ void loop() {
               EEPROM.commit();
 
               customKey1 = NO_KEY;
+
+              flag_count_down = flag_count_down ? 0 : 1;
               //attachInterrupt(digitalPinToInterrupt(PIN_COUNTER), countUp, CHANGE );
               detachInterrupt(digitalPinToInterrupt(PIN_COUNTER));
             }
@@ -888,10 +901,18 @@ void loop() {
             //pause
             else if (customKey1 == '*') {
               customKey1 = NO_KEY;
+              
+              noInterrupts();
               confirmtime = 0;
               RFstate = 0;
               pauseset = 1;
-              setsh = 1; f = 0;
+              setsh = 1;
+              interrupts(); 
+              
+              f = 0;
+
+              flag_count_down = flag_count_down ? 0 : 1;
+              
               display.clear();
               display.resetDisplay();
             }
@@ -991,9 +1012,16 @@ void loop() {
             IDcard1 = String("000") + tem1;
 
           if (IDcard1 == IDcard) {
+            
+            noInterrupts();
             RFstate = 1;
-            pauseset = 0; IDcard1 = ""; tem1 = "";
             setsh = 1;
+            pauseset = 0;
+            interrupts();
+            
+            IDcard1 = ""; 
+            tem1 = "";
+            
             timerAttachInterrupt(timer, &onTimerWork, true);
             timerAlarmWrite(timer, 1000000, true);
             timerAlarmEnable(timer);
