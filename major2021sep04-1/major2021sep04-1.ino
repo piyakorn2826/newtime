@@ -29,9 +29,9 @@
 #define ERR_COUNT_007     7
 #define ERR_TOUCH_008     8
 #define ERR_BREAK_009     9
-#define ERR_QUITE_010     10
+#define ERR_CONTINUE_010  10
 #define ERR_QUITE_011     11
-#define ERR_CONTINUE_012  12
+#define ERR_QUITE_012     12
 #define ERR_BREAK_013     13
 #define ERR_BREAK_014     14
 #define ERR_DOWNTIME_015  15
@@ -867,7 +867,29 @@ void loop() {
               timerDetachInterrupt(timer);
               /* DB4 */
               //EEPROM.get(addeeqty, readqty);
-              query_Quit_GetMethod((char*)IDcard.c_str() , dst.id_job, dst.operation, (char*)readmachine.c_str(), (char*)h.c_str(), (char*)strqty.c_str(), "0", "0");
+//              query_Quit_GetMethod((char*)IDcard.c_str() , dst.id_job, dst.operation, (char*)readmachine.c_str(), (char*)h.c_str(), (char*)strqty.c_str(), "0", "0");
+              switch(query_Quit_GetMethod((char*)IDcard.c_str() , dst.id_job, dst.operation, (char*)readmachine.c_str(), (char*)h.c_str(), (char*)strqty.c_str(), "0", "0") ) 
+              {
+                case 0 :
+                  // success case !
+                  break ;
+                case ERR_QUITE_011 :
+                  Serial.println("ERR_QUITE_011");
+                  display.clear();
+                  dw_font_goto(&myfont, 15, LINE3);
+                  dw_font_print(&myfont, "ERR_QUITE_011");
+                  display.display();
+                  delay(1500);
+                  break ; 
+                case ERR_QUITE_012 :
+                  Serial.println("ERR_QUITE_012");
+                  display.clear();
+                  dw_font_goto(&myfont, 15, LINE3);
+                  dw_font_print(&myfont, "ERR_QUITE_012");
+                  display.display();
+                  delay(1500);
+                  break ;    
+            }
               /* DB4 */
 
               display.clear();
@@ -984,7 +1006,22 @@ void loop() {
             timerAlarmEnable(timer);
             setb = 1;
             /* DB3 */
-            query_Break_GetMethod( (char*)IDcard.c_str() , dst.id_job, dst.operation, (char*)readmachine.c_str(), "1" );
+//            query_Break_GetMethod( (char*)IDcard.c_str() , dst.id_job, dst.operation, (char*)readmachine.c_str(), "1" );
+
+            switch(query_Break_GetMethod( (char*)IDcard.c_str() , dst.id_job, dst.operation, (char*)readmachine.c_str(), "1" )) 
+            {
+              case 0 :
+                // success case !
+                break ;
+              case ERR_BREAK_003 :
+                Serial.println("ERR_TOUCH_003");
+                display.clear();
+                dw_font_goto(&myfont, 15, LINE3);
+                dw_font_print(&myfont, "ERR_TOUCH_003");
+                display.display();
+                delay(1500);
+                break ;   
+            }
             pauseKey = NO_KEY;
             setsh = 0;
           }
@@ -996,7 +1033,21 @@ void loop() {
             timerAlarmEnable(timer);
             setb = 2;
             /* DB3 */
-            query_Break_GetMethod( (char*)IDcard.c_str() , dst.id_job, dst.operation, (char*)readmachine.c_str(), "2" );
+//            query_Break_GetMethod( (char*)IDcard.c_str() , dst.id_job, dst.operation, (char*)readmachine.c_str(), "2" );
+            switch(query_Break_GetMethod( (char*)IDcard.c_str() , dst.id_job, dst.operation, (char*)readmachine.c_str(), "2" )) 
+            {
+              case 0 :
+                // success case !
+                break ;
+              case ERR_BREAK_003 :
+                Serial.println("ERR_TOUCH_003");
+                display.clear();
+                dw_font_goto(&myfont, 15, LINE3);
+                dw_font_print(&myfont, "ERR_TOUCH_003");
+                display.display();
+                delay(1500);
+                break ;   
+            }
             pauseKey = NO_KEY;
             setsh = 0;
           }
@@ -1026,7 +1077,21 @@ void loop() {
             timerAlarmWrite(timer, 1000000, true);
             timerAlarmEnable(timer);
             /* DB3 */
-            query_Continue_GetMethod((char*)readmachine.c_str(), (char*)IDcard.c_str());
+//            query_Continue_GetMethod((char*)readmachine.c_str(), (char*)IDcard.c_str());
+            switch(query_Continue_GetMethod((char*)readmachine.c_str(), (char*)IDcard.c_str())) 
+            {
+              case 0 :
+                // success case !
+                break ;
+              case ERR_CONTINUE_010 :
+                Serial.println("ERR_CONTINUE_010");
+                display.clear();
+                dw_font_goto(&myfont, 15, LINE3);
+                dw_font_print(&myfont,"ERR_CONTINUE_010");
+                display.display();
+                delay(1500);
+                break ;   
+            }
             breakCounter = 0;
             display.clear();
             display.resetDisplay();
@@ -1219,7 +1284,23 @@ void loop() {
           settingmenu = 1; customKey = NO_KEY;
           settingmachine = 0;
           Serial.println(code);
-          query_Downtime_GetMethod(dst.id_job , dst.operation , (char*)readmachine.c_str() , (char*)code.c_str());
+//          query_Downtime_GetMethod(dst.id_job , dst.operation , (char*)readmachine.c_str() , (char*)code.c_str());
+
+          switch(query_Downtime_GetMethod(dst.id_job , dst.operation , (char*)readmachine.c_str() , (char*)code.c_str())) 
+            {
+              case 0 :
+                // success case !
+                break ;
+              case ERR_DOWNTIME_015 :
+                Serial.println("ERR_DOWNTIME_015");
+                display.clear();
+                dw_font_goto(&myfont, 15, LINE3);
+                dw_font_print(&myfont,"ERR_DOWNTIME_015");
+                display.display();
+                delay(1500);
+                break ;   
+            }
+          
           u = 10; code = "";
           display.resetDisplay();
         }
